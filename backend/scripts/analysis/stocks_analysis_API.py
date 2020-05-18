@@ -3,25 +3,31 @@ import backend.scripts.analysis.stocks_analysis as stocks_analysis
 import backend.scripts.data_scrape.eoddata_scrape_API as scrape_API
 
 
+VIABLE_DATA_COLUMN_NAMES = ['High', 'Low', 'Close', 'Volume', 'Value-Change', 'Percent-Change']
+ANALYSIS_METHODS_VIABLE_NAMES = ['mean', 'volume weighted mean', 'describe', 'max', 'min', 'sum', 'median', 'mad']
+
+
+def viable_exchange_names():
+    exchange_names = list(scrape_API.Eoddata().tab_dict.keys())
+    exchange_names.remove('currencies')
+    return exchange_names
+
+
 class AllDataAnalysisToday:
     def __init__(self, exchange_name):
         self.daily_data_file_path = scrape_API.EoddataExchange(exchange_name).set_daily_data_file_name()
+        self.viable_data_column_names = VIABLE_DATA_COLUMN_NAMES
 
-        if os.path.isfile(self.daily_data_file_path) is False:
-            scrape_API.EoddataExchange(exchange_name).create_daily_data()
         try:
-            self.all_daily_dataframe = stocks_analysis.all_companies_data_frame(self.daily_data_file_path)
-        except:
+            if os.path.isfile(self.daily_data_file_path) is False:
+                scrape_API.EoddataExchange(exchange_name).create_daily_data()
+        except IndexError:
             print("no " + exchange_name + " symbols data file found.\n initiating symbols data file creation.")
             scrape_API.EoddataExchange(exchange_name).create_symbols_file()
+            scrape_API.EoddataExchange(exchange_name).create_daily_data()
 
-    def viable_data_column_names(self):
-        return ['High', 'Low', 'Close', 'Volume', 'Value-Change', 'Percent-Change']
+        self.all_daily_dataframe = stocks_analysis.all_companies_data_frame(self.daily_data_file_path)
 
-    def viable_exchange_names(self):
-        exchange_names = list(scrape_API.Eoddata().tab_dict.keys())
-        exchange_names.remove('currencies')
-        return exchange_names
 
     # input: list of strings where each is supposedly part of the required company name.
     # output: list of strings containing company symbols that have the input strings in them.
@@ -54,11 +60,7 @@ class SectorsDataAnalysisToday(AllDataAnalysisToday):
     def __init__(self, exchange_name):
         AllDataAnalysisToday.__init__(self, exchange_name)
         self.sectors_sorted_df = stocks_analysis.sectors_data_from_daily_file(self.all_daily_dataframe)
-
-    # returns a list of the sectors analysis methods available in stocks_analysis.py
-    def analysis_methods_viable_names(self):
-        return ['mean', 'volume weighted mean', 'describe', 'max',
-                'min', 'sum', 'median', 'mad']
+        self.analysis_methods_viable_names = ANALYSIS_METHODS_VIABLE_NAMES
 
     def get_sector_names_list(self):
         sectors = self.sectors_sorted_df['Sector'].tolist()
@@ -81,6 +83,10 @@ class SectorsDataAnalysisToday(AllDataAnalysisToday):
     #               the requested sector data frame sorted by column_name.
     #               if bottom=True, returns the bottom companies in the data frame.
     def top_x_companies_in_sector_by_column(self, sector_name, column_name, number_of_companies, bottom=False):
+        if bottom.lower() == 'top':
+            bottom = False
+        elif bottom.lower() == 'bottom':
+            bottom = True
         return stocks_analysis.\
             top_x_companies_in_sector_by_column(self.all_daily_dataframe,
                                                 sector_name, column_name, number_of_companies, bottom)

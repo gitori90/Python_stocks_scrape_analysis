@@ -4,8 +4,7 @@ import pandas as pd
 matplotlib.use('Agg')
 
 
-def set_images_dir_path():
-    return r".\static\plots"
+IMAGES_DIR_PATH = r".\backend\project_files\plots"
 
 
 # input: self explanatory.
@@ -18,7 +17,7 @@ def bar_plot(data_frame, x_col_name, y_col_name, title, file_name_addition="defa
     if show_or_save == 'show':
         plt.show()
     elif show_or_save == 'save':
-        dir_path = set_images_dir_path()
+        dir_path = IMAGES_DIR_PATH
         image_name = r"\{}.jpg".format(file_name_addition)
 
         plt.savefig(dir_path + image_name)

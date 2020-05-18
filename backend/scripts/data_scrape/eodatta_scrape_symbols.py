@@ -122,5 +122,6 @@ def symbols_and_names_to_excel(section_root_list_url, exchange_title, letter_lis
                      "Industry": corresponding_industry[letter_index]}
 
         symbols_sheet_dataframe = pd.DataFrame(data_dict)
+
         symbols_sheet_dataframe.to_excel(writer, sheet_name=letter_list[letter_index])
     writer.save()
