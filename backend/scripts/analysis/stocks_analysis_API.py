@@ -40,7 +40,8 @@ class AllDataAnalysisToday:
     def get_specific_companies_df(self, company_symbols):
         from_partial_strings = self.get_company_symbol_with_partial_name(company_symbols)
         company_symbols.extend(from_partial_strings)
-        return stocks_analysis.get_specific_companies(self.all_daily_dataframe, company_symbols)
+        companies_daily_dataframe = stocks_analysis.get_specific_companies(self.all_daily_dataframe, company_symbols)
+        return companies_daily_dataframe
 
     # input: company_symbols (a list of symbols)
     # output: a dictionary (with the daily data) of the requested_companies.
@@ -64,6 +65,7 @@ class SectorsDataAnalysisToday(AllDataAnalysisToday):
 
     def get_sector_names_list(self):
         sectors = self.sectors_sorted_df['Sector'].tolist()
+        sectors.insert(0, 'All')
         return sorted(list(set(sectors)))
 
     # input: self explanatory.

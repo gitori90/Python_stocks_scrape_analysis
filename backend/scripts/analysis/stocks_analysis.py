@@ -79,7 +79,7 @@ class FunctionsOnDataframe:
         return volume_weighted_mean(self.dataframe, self.column_name)
 
 
-def pandas_analysis_functions_dict(analysis_function, dataframe, column_name):
+def pandas_analysis_functions_dict(method_name, dataframe, column_name):
     pandas_functions_object = FunctionsOnDataframe(dataframe, column_name)
     usable_functions = {
         'mean': pandas_functions_object.mean,
@@ -92,7 +92,7 @@ def pandas_analysis_functions_dict(analysis_function, dataframe, column_name):
         'volume_weighted_mean': pandas_functions_object.vol_weighted_mean
     }
 
-    chosen_function = usable_functions[analysis_function]
+    chosen_function = usable_functions[method_name]
 
     requested_result_value = chosen_function()
     return requested_result_value
@@ -109,61 +109,6 @@ def analysis_functions_for_sectors_list(column_name, method, sectors_splitted_da
             pandas_analysis_functions_dict(method, no_null_dataframe[column_name], column_name)
 
     return method_result_dictionary
-
-
-"""def analysis_functions_for_sectors_list(column_name, method, sectors_splitted_dataframe):
-    method_result_dictionary = stocks_utils.DEFAULT_NAN
-    if method.lower() == 'mean':
-        mean_value = {}
-        for df in sectors_splitted_dataframe:
-            no_null_df = df.dropna(subset=[column_name])
-            mean_value[no_null_df['Sector'].tolist()[0]] = no_null_df[column_name].mean()
-        method_result_dictionary = mean_value
-
-    elif method.lower() == 'volume weighted mean':
-        mean_value = {}
-        for df in sectors_splitted_dataframe:
-            no_null_df = df.dropna(subset=['Volume', column_name])
-            mean_value[no_null_df['Sector'].tolist()[0]] = volume_weighted_mean(no_null_df, column_name)
-        method_result_dictionary = mean_value
-
-    elif method.lower() == 'describe':
-        description = {}
-        for df in sectors_splitted_dataframe:
-            description[df['Sector'].tolist()[0]] = df[column_name].describe()
-        method_result_dictionary = description
-
-    elif method.lower() == 'max':
-        max = {}
-        for df in sectors_splitted_dataframe:
-            max[df['Sector'].tolist()[0]] = df[column_name].max()
-        method_result_dictionary = max
-
-    elif method.lower() == 'min':
-        min = {}
-        for df in sectors_splitted_dataframe:
-            min[df['Sector'].tolist()[0]] = df[column_name].min()
-        method_result_dictionary = min
-
-    elif method.lower() == 'sum':
-        sum = {}
-        for df in sectors_splitted_dataframe:
-            sum[df['Sector'].tolist()[0]] = df[column_name].sum()
-        method_result_dictionary = sum
-
-    elif method.lower() == 'median':
-        median = {}
-        for df in sectors_splitted_dataframe:
-            median[df['Sector'].tolist()[0]] = df[column_name].median()
-        method_result_dictionary = median
-
-    elif method.lower() == 'mad':
-        mad = {}
-        for df in sectors_splitted_dataframe:
-            mad[df['Sector'].tolist()[0]] = df[column_name].mad()
-        method_result_dictionary = mad
-
-    return method_result_dictionary"""
 
 
 def analyse_column_of_sectors(sector_data_frame, column_name, method):
@@ -246,6 +191,13 @@ def get_company_symbol_with_partial_name(partial_names_list, all_companies_dataf
     return matched_symbols_list
 
 
+def filter_companies_dataframe_by_partial_name(companies_dataframe, partial_string):
+    matched_symbols = get_company_symbol_with_partial_name(partial_string, companies_dataframe)
+    filtered_companies_dataframe = get_specific_companies(companies_dataframe, matched_symbols)
+
+    return filtered_companies_dataframe
+
+
 def get_specific_companies_dict_list(all_daily_data_dataframe, company_symbols):
     requested_companies_dict_list = []
     requested_companies_dataframe = get_specific_companies(all_daily_data_dataframe, company_symbols)
@@ -258,5 +210,3 @@ def get_specific_companies_dict_list(all_daily_data_dataframe, company_symbols):
         requested_companies_dict_list.append(requested_dict[i])
 
     return requested_companies_dict_list
-
-

@@ -4,12 +4,12 @@ import backend.scripts.data_scrape.eoddata_scrape_API as scrape_API
 import backend.scripts.analysis.stocks_analysis_API as stocks_API
 import backend.scripts.analysis.currencies_analysis_API as currencies_API
 import backend.scripts.plot_functions.plots_API as plots_API
-
+import backend.scripts.analysis.advanced_analysis_API as advanced_API
 
 DEFAULT_EXCHANGE_NAME = 'nasdaq'
 
 
-class StocksSection:
+class StocksSectionBasic:
 
     def __init__(self):
         pass
@@ -58,6 +58,18 @@ class StocksSection:
             tops = stocks_API.SectorsDataAnalysisToday(exchange_name).\
                 top_x_companies_in_sector_by_column(sector_name, column_name, number_of_companies, top_or_bottom)
         return tops
+
+
+class StocksSectionAdvanced:
+
+    def __init__(self):
+        pass
+
+    def top_x_in_all_dataframes_dict(self, top_number):
+        top_dict = advanced_API.GlobalConnections().top_x_in_all_dataframes_dict(top_number)
+        return top_dict
+
+
 
 
 class CurrenciesSection:
