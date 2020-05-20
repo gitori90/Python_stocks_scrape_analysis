@@ -71,10 +71,12 @@ def top_x_words_in_all_dataframes_dict(top_number):
     return top_dict
 
 
-def analyse_method_on_all_dataframes_partial_name(partial_names_list, method_name, column_name):
+def analyse_method_on_all_dataframes_partial_name(partial_name, method_name, column_name):
     all_frames = all_exchanges_dataframes()
+
     filtered_companies_dataframe = stocks_analysis.\
-        filter_companies_dataframe_by_partial_name(all_frames, partial_names_list)
+        filter_companies_dataframe_by_partial_name(all_frames, partial_name)
+
     method_result = stocks_analysis.\
         pandas_analysis_functions_dict(method_name, filtered_companies_dataframe, column_name)
 

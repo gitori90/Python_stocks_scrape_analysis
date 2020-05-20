@@ -61,7 +61,6 @@ class StocksSectionBasic:
 
 
 class StocksSectionAdvanced:
-
     def __init__(self):
         pass
 
@@ -77,6 +76,12 @@ class StocksSectionAdvanced:
             (specific_name, column_name, number_of_companies, bottom_or_top)
 
         return dataframe_of_top_by_column
+
+    def analyse_method_on_all_dataframes_partial_name(self, partial_name, method_name, column_name):
+        method_result = advanced_API.GlobalConnections().\
+            analyse_method_on_all_dataframes_partial_name(partial_name, method_name, column_name)
+
+        return method_result
 
 
 class CurrenciesSection:

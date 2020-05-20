@@ -55,25 +55,25 @@ class FunctionsOnDataframe:
         self.column_name = column_name
 
     def mean(self):
-        return self.dataframe.mean()
+        return self.dataframe[self.column_name].mean()
 
     def max(self):
-        return self.dataframe.max()
+        return self.dataframe[self.column_name].max()
 
     def min(self):
-        return self.dataframe.min()
+        return self.dataframe[self.column_name].min()
 
     def sum(self):
-        return self.dataframe.sum()
+        return self.dataframe[self.column_name].sum()
 
     def median(self):
-        return self.dataframe.median()
+        return self.dataframe[self.column_name].median()
 
     def mad(self):
-        return self.dataframe.mad()
+        return self.dataframe[self.column_name].mad()
 
     def describe(self):
-        return self.dataframe.describe()
+        return self.dataframe[self.column_name].describe()
 
     def vol_weighted_mean(self):
         return volume_weighted_mean(self.dataframe, self.column_name)
