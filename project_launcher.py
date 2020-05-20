@@ -1,10 +1,25 @@
+##############################################################
+#
+#
+#   call the functions of stocks_backend_API from here
+#
+#
+##############################################################
+
 import pandas as pd
 from backend import stocks_backend_API as backend_API
 
+WORDS_OF_INTEREST = ['corp', 'inc', 'group', 'us', 'china', 'plc']
+
+"""omg_dict = backend_API.StocksSectionAdvanced().top_x_words_in_all_dataframes_dict(40)
+print(omg_dict)"""
 
 
-omg_dict = backend_API.StocksSectionAdvanced().top_x_words_in_all_dataframes_dict(40)
-print(omg_dict)
+df = backend_API.StocksSectionAdvanced().top_x_companies_by_column_with_specific_word_dataframe('corp', 'Value-Change', 50)
+
+with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
+    print(df)
+
 """
 exchange_names_list = backend_API.StocksSectionBasic().get_exchange_names_list()
 valid_column_names_list = backend_API.StocksSectionBasic().valid_column_names_list()

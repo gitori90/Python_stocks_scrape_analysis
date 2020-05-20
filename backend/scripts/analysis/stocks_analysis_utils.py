@@ -37,8 +37,12 @@ def authenticate_sector_name(sector_name, sector_names_list):
 
 def matched_strings_list(name_list, partial_text):
     match_list = []
+
     for name in name_list:
-        if partial_text.lower() in name.lower():
-            match_list.append(name)
+        try:
+            if partial_text.lower() in name.lower():
+                match_list.append(name)
+        except AttributeError:
+            continue
     return match_list
 

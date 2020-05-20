@@ -135,6 +135,14 @@ def analyse_column_of_sectors_strings_list(sectors_method_dataframe):
 
 
 def top_x_companies_by_column(daily_dataframe, column_name, number_of_companies, bottom=False):
+    try:
+        if bottom.lower() == 'top':
+            bottom = False
+        elif bottom.lower() == 'bottom':
+            bottom = True
+    except AttributeError:
+        pass
+
     column_name = stocks_utils.authenticate_column_name(column_name)
     dataframe_without_nan = daily_dataframe.dropna(subset=[column_name])
     column_sorted_dataframe = stocks_utils.sort_all_daily_data_by_column(dataframe_without_nan, column_name)
@@ -166,7 +174,7 @@ def top_x_companies_in_sector_by_column(all_companies_dataframe, sector_name,
     return top_companies
 
 
-def get_specific_companies(all_daily_data, company_symbols_list):
+def get_specific_companies_by_symbols(all_daily_data, company_symbols_list):
     requested_companies_dataframe = pd.DataFrame()
     for company_symbol in company_symbols_list:
         company_symbol = company_symbol.upper()
@@ -178,29 +186,53 @@ def get_specific_companies(all_daily_data, company_symbols_list):
 def get_company_symbol_with_partial_name(partial_names_list, all_companies_dataframe):
     name_list = all_companies_dataframe['Name'].tolist()
     matched_symbols_list = []
+
     for partial_text in partial_names_list:
-        match_list = stocks_utils.matched_strings_list(name_list, partial_text)
+        matched_names_list = stocks_utils.matched_strings_list(name_list, partial_text)
         symbols_list = []
-        for matched_name in match_list:
-            symbol_string = all_companies_dataframe[all_companies_dataframe['Name'] == matched_name]['Symbol'].to_string()
-            regex = re.compile('[^a-zA-Z]')
-            symbol_string = regex.sub('', symbol_string)
+        for matched_name in matched_names_list:
+            symbol_string = all_companies_dataframe[all_companies_dataframe['Name'] == matched_name]['Symbol'].to_list()
+            symbol_string = str(symbol_string[0])
             symbols_list.append(symbol_string)
+
         matched_symbols_list.extend(symbols_list)
+
+    matched_symbols_list = list(set(matched_symbols_list))
 
     return matched_symbols_list
 
 
+def get_specific_companies_by_full_names(all_daily_dataframe, company_names_list):
+    requested_companies_dataframe = pd.DataFrame()
+    for company_name in company_names_list:
+        requested_company = all_daily_dataframe[all_daily_dataframe['Name'].str.lower() == company_name.lower()]
+        requested_companies_dataframe = requested_companies_dataframe.append(requested_company)
+    return requested_companies_dataframe
+
+
+def full_company_names_list_from_partials(all_daily_dataframe, company_partial_string):
+    all_matched_names_list = []
+    all_names_list = all_daily_dataframe['Name'].to_list()
+
+    matched_names_list = stocks_utils.matched_strings_list(all_names_list, company_partial_string)
+    all_matched_names_list.extend(matched_names_list)
+
+    return all_matched_names_list
+
+
 def filter_companies_dataframe_by_partial_name(companies_dataframe, partial_string):
-    matched_symbols = get_company_symbol_with_partial_name(partial_string, companies_dataframe)
-    filtered_companies_dataframe = get_specific_companies(companies_dataframe, matched_symbols)
+    all_matched_names_list = full_company_names_list_from_partials(companies_dataframe, partial_string)
+    all_matched_names_list_no_doubles = list(set(all_matched_names_list))
+
+    filtered_companies_dataframe = \
+        get_specific_companies_by_full_names(companies_dataframe, all_matched_names_list_no_doubles)
 
     return filtered_companies_dataframe
 
 
 def get_specific_companies_dict_list(all_daily_data_dataframe, company_symbols):
     requested_companies_dict_list = []
-    requested_companies_dataframe = get_specific_companies(all_daily_data_dataframe, company_symbols)
+    requested_companies_dataframe = get_specific_companies_by_symbols(all_daily_data_dataframe, company_symbols)
     replaced_nan_dataframe = requested_companies_dataframe.fillna(value='--')
 
     index_list = [i for i in range(len(replaced_nan_dataframe['Symbol'].tolist()))]

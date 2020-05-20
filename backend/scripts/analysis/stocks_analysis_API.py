@@ -40,7 +40,7 @@ class AllDataAnalysisToday:
     def get_specific_companies_df(self, company_symbols):
         from_partial_strings = self.get_company_symbol_with_partial_name(company_symbols)
         company_symbols.extend(from_partial_strings)
-        companies_daily_dataframe = stocks_analysis.get_specific_companies(self.all_daily_dataframe, company_symbols)
+        companies_daily_dataframe = stocks_analysis.get_specific_companies_by_symbols(self.all_daily_dataframe, company_symbols)
         return companies_daily_dataframe
 
     # input: company_symbols (a list of symbols)
@@ -85,10 +85,6 @@ class SectorsDataAnalysisToday(AllDataAnalysisToday):
     #               the requested sector data frame sorted by column_name.
     #               if bottom=True, returns the bottom companies in the data frame.
     def top_x_companies_in_sector_by_column(self, sector_name, column_name, number_of_companies, bottom=False):
-        if bottom.lower() == 'top':
-            bottom = False
-        elif bottom.lower() == 'bottom':
-            bottom = True
         return stocks_analysis.\
             top_x_companies_in_sector_by_column(self.all_daily_dataframe,
                                                 sector_name, column_name, number_of_companies, bottom)

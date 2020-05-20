@@ -65,11 +65,18 @@ class StocksSectionAdvanced:
     def __init__(self):
         pass
 
-    def top_x_in_all_dataframes_dict(self, top_number):
-        top_dict = advanced_API.GlobalConnections().top_x_in_all_dataframes_dict(top_number)
+    def top_x_words_in_all_dataframes_dict(self, top_number):
+        top_dict = advanced_API.GlobalConnections().top_x_words_in_all_dataframes_dict(top_number)
         return top_dict
 
+    def top_x_companies_by_column_with_specific_word_dataframe\
+        (self, specific_name, column_name, number_of_companies, bottom_or_top=False):
 
+        dataframe_of_top_by_column = advanced_API.GlobalConnections().\
+            top_x_companies_by_column_with_specific_name_dataframe\
+            (specific_name, column_name, number_of_companies, bottom_or_top)
+
+        return dataframe_of_top_by_column
 
 
 class CurrenciesSection:
