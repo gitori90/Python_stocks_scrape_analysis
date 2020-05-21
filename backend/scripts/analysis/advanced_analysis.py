@@ -32,10 +32,9 @@ def name_to_alphabetic_words_list(company_name):
     return alphabet_words_list
 
 
-def all_words_in_all_company_names_dataframe_counter():
-    all_frames = all_exchanges_dataframes()
+def all_words_in_company_names_dataframe_counter(companies_dataframe):
     all_words = []
-    name_list = all_frames['Name'].tolist()
+    name_list = companies_dataframe['Name'].tolist()
 
     for company_name in name_list:
         try:
@@ -65,8 +64,8 @@ def top_x_in_count_dictionary(counter_dict, top_number):
     return top_dict
 
 
-def top_x_words_in_all_dataframes_dict(top_number):
-    count_dict = all_words_in_all_company_names_dataframe_counter()
+def top_x_words_in_dataframe_dict(dataframe, top_number):
+    count_dict = all_words_in_company_names_dataframe_counter(dataframe)
     top_dict = top_x_in_count_dictionary(count_dict, top_number)
     return top_dict
 

@@ -6,8 +6,13 @@ class GlobalConnections:
     def __init__(self):
         pass
 
+    def top_x_words_in_dataframe_dict(self, dataframe, top_number):
+        top_dict = advanced_analysis.top_x_words_in_dataframe_dict(dataframe, top_number)
+        return top_dict
+
     def top_x_words_in_all_dataframes_dict(self, top_number):
-        top_dict = advanced_analysis.top_x_words_in_all_dataframes_dict(top_number)
+        all_dataframes = advanced_analysis.all_exchanges_dataframes()
+        top_dict = self.top_x_words_in_dataframe_dict(all_dataframes, top_number)
         return top_dict
 
     def top_x_companies_by_column_with_specific_name_dataframe\

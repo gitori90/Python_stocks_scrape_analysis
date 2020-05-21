@@ -65,7 +65,7 @@ class StocksSectionAdvanced:
         pass
 
     def top_x_words_in_all_dataframes_dict(self, top_number):
-        top_dict = advanced_API.GlobalConnections().top_x_words_in_all_dataframes_dict(top_number)
+        top_dict = advanced_API.GlobalConnections().top_x_words_in_dataframe_dict(top_number)
         return top_dict
 
     def top_x_companies_by_column_with_specific_word_dataframe\

@@ -7,8 +7,7 @@ matplotlib.use('Agg')
 IMAGES_DIR_PATH = r".\backend\project_files\plots"
 
 
-# input: self explanatory.
-#        file_name_addition is another string to add to the graph image's file name.
+#   file_name_addition is another string to add to the graph image's file name.
 def bar_plot(data_frame, x_col_name, y_col_name, title, file_name_addition="default", show_or_save='save'):
     data_frame.plot(kind='bar', x=x_col_name, y=y_col_name)
     plt.title(title)
@@ -24,14 +23,10 @@ def bar_plot(data_frame, x_col_name, y_col_name, title, file_name_addition="defa
     plt.close('all')
 
 
-# input: 1. data frame of the resulted method applied to the sectors (sector names are the columns).
-#        2. name of the method applied to the data.
-#        3. the name of the data column the method acted on.
-# return value: none. calls for bar_plot to show or save the graph.
-def plot_sectors_analysis_today(analysis_df, method_name, column_name):
+def plot_sectors_analysis_today(analysis_dataframe, method_name, column_name):
     method_name = method_name.capitalize()
     sectors = list(analysis_df.columns)
-    values = analysis_df.values.tolist()
+    values = analysis_dataframe.values.tolist()
 
     modified_df = pd.DataFrame()
     modified_df['Sectors'] = sectors
