@@ -4,6 +4,28 @@ import backend.scripts.analysis.stocks_analysis_API as stocks_API
 from collections import Counter
 import re
 
+# the plan, for each company:
+# 1. build a dictionary, the keys are the nasdaq companies (ALL of them),
+#    the values are set to 0.
+# 2. start at the first day (the earliest day recorded), get the sign of the
+#    mentioned company's value change (just the same for percent change).
+# 3. look at the sign of the change of all companies on the following day.
+#    add +1 to the values in the dictionary only to the companies with
+#    the same sign as the mentioned company of the day before,
+#    and add -1 (subtract!) to the companies with the opposite sign.
+# 4. repeat this for every day, adding to the SAME dictionary every time.
+#
+# for enough days recorded, the companies affected by the original company will
+# (should) have the highest/lowest value.
+# the unrelated companies should have values close to 0.
+#
+# normalize by the number of days recorded, so the values will range
+# from -1 to 1.
+
+
+
+
+
 
 def all_exchanges_dataframes():
     exchange_names = stocks_API.viable_exchange_names()
