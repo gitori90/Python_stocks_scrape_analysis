@@ -4,7 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 
 
-def set_daily_data_file_name(title):
+def set_daily_data_file_path(title):
     today = str(datetime.date.today())
     file_path = r"backend\project_files" + r"\daily_data_excels_" + title + r"\{}".format(title) + today + ".xlsx"
     return file_path
@@ -30,3 +30,12 @@ def use_requests_get(url):
         exit("error loading page at " + url)
 
     return parsed_page
+
+
+def get_all_daily_files_paths_in_specific_market(market_name):
+    root_path = r"backend\project_files\daily_data_excels_{}".format(market_name)
+    excel_files_path_list = glob.glob(root_path + r"\*.xlsx")
+    return excel_files_path_list
+
+
+

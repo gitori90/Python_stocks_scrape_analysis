@@ -111,7 +111,7 @@ def read_daily_data(target_url, title, sheet_letter_list):
 
 
 def write_daily_data_to_excel(today_site_data_list, site_title, sheet_letter_list):
-    file_path = path_functions.set_daily_data_file_name(site_title)
+    file_path = path_functions.set_daily_data_file_path(site_title)
 
     writer = pd.ExcelWriter(file_path, engine='xlsxwriter')
     for i in range(len(sheet_letter_list)):

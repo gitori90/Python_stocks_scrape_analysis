@@ -31,7 +31,7 @@ class EoddataExchange(Eoddata):
         self.section_root_list_url = self.stocklist + self.tab_dict[exchange_tab]
 
     def set_daily_data_file_name(self):
-        file_path = path_finding_functions.set_daily_data_file_name(self.exchange_title)
+        file_path = path_finding_functions.set_daily_data_file_path(self.exchange_title)
         return file_path
 
     def create_symbols_file(self):
