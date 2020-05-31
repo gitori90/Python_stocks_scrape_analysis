@@ -78,6 +78,14 @@ def replace_all_nan(sheet_df):
         sheet_df[col].replace('nan', '--', inplace=True)
     return sheet_df
 
+
+
+"""def split_dataframe_by_first_letters(dataframe, letters_list, column_name):
+    splitted_dataframes_list = []
+    for letter in letters_list:
+        partial_dataframe = dataframe[dataframe['Symbol']]"""
+
+
 """
 def set_user_data_excel_path():
     dir_path = r".\project_files"

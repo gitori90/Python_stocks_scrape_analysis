@@ -92,11 +92,12 @@ def read_daily_data(target_url, title, sheet_letter_list):
     closing_url = ".htm"
 
     page_read_classes = []
+
+    # threading:
     for letter in sheet_letter_list:
         page = ReadPartialDailyData(letter, target_url, closing_url, title)
         page_read_classes.append(page)
 
-    # threading:
     for read_class in page_read_classes:
         read_class.start()
 

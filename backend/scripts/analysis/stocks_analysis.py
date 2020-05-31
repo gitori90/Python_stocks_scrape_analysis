@@ -1,6 +1,7 @@
 import pandas as pd
 import backend.scripts.df_utils.data_frame_utilities as dataframe_utils
 import backend.scripts.analysis.stocks_analysis_utils as stocks_utils
+import backend.scripts.data_scrape.eoddata_scrape_API as scrape_API
 import re
 
 
@@ -242,3 +243,12 @@ def get_specific_companies_dict_list(all_daily_data_dataframe, company_symbols):
         requested_companies_dict_list.append(requested_dict[i])
 
     return requested_companies_dict_list
+
+
+def get_market_today_dataframe(market_name):
+    market_daily_file_path = scrape_API.EoddataExchange(market_name).set_daily_data_file_name()
+    chosen_daily_dataframe = all_companies_data_frame(market_daily_file_path)
+    return chosen_daily_dataframe
+
+
+
