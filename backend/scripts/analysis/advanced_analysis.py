@@ -219,7 +219,7 @@ def check_for_daily_gaps(daily_files_paths_list):
                   .format(dates_delta - 1, str(d1), str(d2)))
 
 
-
+# for API
 def build_companies_counter_dict_for_specific_company(market_name, company_symbol, col_name, delay_days):
     daily_files_paths_list = path_finding_functions.get_all_daily_files_paths_in_specific_market(market_name)
     number_of_files = len(daily_files_paths_list)
@@ -237,9 +237,44 @@ def build_companies_counter_dict_for_specific_company(market_name, company_symbo
         updated_daily_dict_counter = \
             add_day_to_counter_dict(updated_daily_dict_counter,
                                     delayed_daily_dataframe, company_value_sign,
-                                    col_name, number_of_files)
+                                    col_name, number_of_files - delay_days)
 
     return updated_daily_dict_counter
+
+
+
+def get_company_selected_column_value(today_dataframe, company_symbol, col_name):
+    selected_company_dataframe = today_dataframe[today_dataframe['Symbol'] == company_symbol]
+    selected_column_value = float(selected_company_dataframe[col_name])
+    return selected_column_value
+
+
+# variable 'related_companies_list' is (should be) a list of companies
+# extracted from the dictionary returned by build_companies_counter_dict_for_specific_company
+def selected_companies_percent_connection_strength_dict(market_name,
+                                                        company_symbol, related_companies_list, delay_days, col_name):
+
+    daily_files_paths_list = path_finding_functions.get_all_daily_files_paths_in_specific_market(market_name)
+    number_of_files = len(daily_files_paths_list)
+
+    delayed_companies_selected_values_dict = {company: 0 for company in related_companies_list}
+
+    for i in range(number_of_files - delay_days):
+        today_dataframe = stocks_analysis.all_companies_data_frame(daily_files_paths_list[i])
+        focused_company_selected_value = get_company_selected_column_value(today_dataframe, company_symbol, col_name)
+
+        delayed_daily_dataframe = \
+            stocks_analysis.all_companies_data_frame(daily_files_paths_list[i + delay_days])
+
+        for company_symbol in related_companies_list:
+            related_selected_value = get_company_selected_column_value(delayed_daily_dataframe, company_symbol, col_name)
+            try:
+                relative_value = related_selected_value / focused_company_selected_value
+            except ZeroDivisionError:
+                relative_value = 0
+            delayed_companies_selected_values_dict[company_symbol] += relative_value / (number_of_files - delay_days)
+
+    return delayed_companies_selected_values_dict
 
 
 

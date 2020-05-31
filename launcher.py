@@ -14,6 +14,19 @@ import backend.scripts.data_scrape.path_finding_functions as path_finding_functi
 import threading
 import concurrent.futures
 
+
+dict = advanced_analysis.\
+    selected_companies_percent_connection_strength_dict('nasdaq',
+                                                        'AMZN', ["KLXE",'MRKR', 'MTEX', 'RAPT', 'RTLR'],
+                                                        1, 'Percent-Change')
+
+print(dict)
+
+
+
+
+
+
 """funny_global = 0
 
 def printer(something):
@@ -24,10 +37,6 @@ def printer(something):
         j += 1
     print(funny_global)
     return something + 100
-
-
-
-
 
 with concurrent.futures.ThreadPoolExecutor() as executor:
     x = executor.map(printer, [99,98,97,96,95,94,93,92])
@@ -44,7 +53,7 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
         thread.join()
     print(funny_global)"""
 
-
+"""
 # print(path_finding_functions.get_all_daily_files_paths_in_specific_market('nasdaq'))
 def run_dict_test(company_symbol):
     print(company_symbol)
@@ -78,7 +87,7 @@ def run_dict_test(company_symbol):
 
 
 with concurrent.futures.ThreadPoolExecutor() as executor:
-    x = executor.map(run_dict_test, ['AMZN', 'SEDG'])
+    x = executor.map(run_dict_test, ['AMZN'])"""
 
 
 
