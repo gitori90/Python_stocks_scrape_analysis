@@ -219,7 +219,7 @@ def check_for_daily_gaps(daily_files_paths_list):
                   .format(dates_delta - 1, str(d1), str(d2)))
 
 
-# for API
+# for API:
 def build_companies_counter_dict_for_specific_company(market_name, company_symbol, col_name, delay_days):
     daily_files_paths_list = path_finding_functions.get_all_daily_files_paths_in_specific_market(market_name)
     number_of_files = len(daily_files_paths_list)
@@ -242,13 +242,13 @@ def build_companies_counter_dict_for_specific_company(market_name, company_symbo
     return updated_daily_dict_counter
 
 
-
 def get_company_selected_column_value(today_dataframe, company_symbol, col_name):
     selected_company_dataframe = today_dataframe[today_dataframe['Symbol'] == company_symbol]
     selected_column_value = float(selected_company_dataframe[col_name])
     return selected_column_value
 
 
+# for API:
 # variable 'related_companies_list' is (should be) a list of companies
 # extracted from the dictionary returned by build_companies_counter_dict_for_specific_company
 def selected_companies_percent_connection_strength_dict(market_name,
@@ -259,6 +259,7 @@ def selected_companies_percent_connection_strength_dict(market_name,
 
     delayed_companies_selected_values_dict = {company: 0 for company in related_companies_list}
 
+    # run over each daily file. exclude those who will no correspondent delayed daily file:
     for i in range(number_of_files - delay_days):
         today_dataframe = stocks_analysis.all_companies_data_frame(daily_files_paths_list[i])
         focused_company_selected_value = get_company_selected_column_value(today_dataframe, company_symbol, col_name)
@@ -266,6 +267,8 @@ def selected_companies_percent_connection_strength_dict(market_name,
         delayed_daily_dataframe = \
             stocks_analysis.all_companies_data_frame(daily_files_paths_list[i + delay_days])
 
+        # run over the related companies and get its relative change
+        # (compared to the company in the focus) and add to the dict:
         for company_symbol in related_companies_list:
             related_selected_value = get_company_selected_column_value(delayed_daily_dataframe, company_symbol, col_name)
             try:
@@ -275,6 +278,29 @@ def selected_companies_percent_connection_strength_dict(market_name,
             delayed_companies_selected_values_dict[company_symbol] += relative_value / (number_of_files - delay_days)
 
     return delayed_companies_selected_values_dict
+
+
+# for API:
+def top_x_influenced_by_selected_company_dict(market_name, company_symbol, col_name,
+                                              delay_days, number_to_show=10, direct_or_inverse='direct'):
+    flag = False
+    if direct_or_inverse == 'direct':
+        flag = True
+
+    updated_daily_dict_counter = \
+        build_companies_counter_dict_for_specific_company(market_name, company_symbol, col_name, delay_days)
+
+    sorted_counter_dict = {}
+    sorted_daily_dict_counter = sorted(updated_daily_dict_counter.items(), key=lambda x: x[1], reverse=flag)
+    j = 0
+    for i in sorted_daily_dict_counter:
+        j += 1
+        sorted_counter_dict[i[0]] = i[1]
+        if j > number_to_show:
+            break
+
+    return sorted_counter_dict
+
 
 
 

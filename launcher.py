@@ -15,16 +15,12 @@ import threading
 import concurrent.futures
 
 
-dict = advanced_analysis.\
+"""dict = advanced_analysis.\
     selected_companies_percent_connection_strength_dict('nasdaq',
                                                         'AMZN', ["KLXE",'MRKR', 'MTEX', 'RAPT', 'RTLR'],
                                                         1, 'Percent-Change')
 
-print(dict)
-
-
-
-
+print(dict)"""
 
 
 """funny_global = 0
@@ -53,60 +49,23 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
         thread.join()
     print(funny_global)"""
 
-"""
+
 # print(path_finding_functions.get_all_daily_files_paths_in_specific_market('nasdaq'))
-def run_dict_test(company_symbol):
-    print(company_symbol)
-    print("delay = 1:")
-    testdict = advanced_analysis.build_companies_counter_dict_for_specific_company('nasdaq',
-                                                                                        company_symbol,
-                                                                                       'Value-Change', 1)
-    sort_testdict = sorted(testdict.items(), key=lambda x: x[1], reverse=True)
-    j = 0
-    for i in sort_testdict:
-        j += 1
-        print(i[0], i[1])
-        if j > 20:
-            break
-
-    print("################################")
-
-    print("delay = 0:")
-    testdict2 = advanced_analysis.build_companies_counter_dict_for_specific_company('nasdaq',
-                                                                                        company_symbol,
-                                                                                       'Value-Change', 0)
-
-    sort_testdict2 = sorted(testdict2.items(), key=lambda x: x[1], reverse=True)
-    j = 0
-    for i in sort_testdict2:
-        j += 1
-        print(i[0], i[1])
-        if j > 20:
-            break
-    print("################################")
 
 
-with concurrent.futures.ThreadPoolExecutor() as executor:
+"""with concurrent.futures.ThreadPoolExecutor() as executor:
     x = executor.map(run_dict_test, ['AMZN'])"""
+# run_dict_test is a function
+
+
+testdict = advanced_analysis.top_x_influenced_by_selected_company_dict('nasdaq', 'AMZN', 'Percent-Change', 1, 20)
+print(testdict)
 
 
 
-
-
-
-
-
-
-
-
-
-"""dict = advanced_analysis.create_companies_zero_dict('nasdaq')
-print(dict)"""
-
-
-
-
-"""dataframe_of_top_by_column = backend_API.StocksSectionAdvanced().\
+# EXECUTE TO SCRAPE ALL DAILY DATA:
+"""
+dataframe_of_top_by_column = backend_API.StocksSectionAdvanced().\
     top_x_companies_by_column_with_specific_word_dataframe('corp',
                                                            'Percent-Change', 20, 'bottom')
 
