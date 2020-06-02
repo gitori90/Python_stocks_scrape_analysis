@@ -26,7 +26,6 @@ def printer(something):
     j = 0
     for i in range(100000):
         j += 1
-    print(funny_global)
     return something + 100
 
 with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -54,16 +53,19 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
 
 
 """testdict = advanced_analysis.top_x_influenced_by_selected_company_dict('nasdaq',
-                                                                       'AMZN', 'Percent-Change', 1, 'rise', 150, 40)
+                                                                       'AMZN', 'Percent-Change', 1, 'rise', 40)
 print(testdict)"""
 
 
-testdict2 = advanced_analysis.\
+
+"""testdict2 = advanced_analysis.\
     selected_companies_percent_connection_strength_dict('nasdaq',
                                                         'AMZN', ["ALEC",'AMRS', 'BEAM', 'MEIP', 'CNTY'],
                                                         1, 'Percent-Change')
 
-print(testdict2)
+print(testdict2)"""
+
+advanced_analysis.create_ascending_points_dataframe('nasdaq', 1, 40)
 
 
 # EXECUTE TO SCRAPE ALL DAILY DATA:

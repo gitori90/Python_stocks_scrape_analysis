@@ -34,7 +34,7 @@ def build_counter_dict(symbols_list, today_signs_dict, company_value_sign, daily
             company_value_of_dict = today_signs_dict[key] * company_value_sign
             daily_dict_counter[key] += company_value_of_dict
 
-    elif tendency == 'rise':
+    elif tendency == 'ascend':
         for key in symbols_list:
             if today_signs_dict[key] > 0 and company_value_sign > 0:
                 daily_dict_counter[key] += company_value_sign
@@ -111,11 +111,11 @@ def get_company_selected_column_value(today_dataframe, company_symbol, col_name)
     return selected_column_value
 
 
-def normalize_daily_dict_counter(tendency, updated_daily_dict_counter, rise_count,
+def normalize_daily_dict_counter(tendency, updated_daily_dict_counter, ascend_count,
                                  descent_count, number_of_counted_days):
     tendency_count = number_of_counted_days
-    if tendency == 'rise':
-        tendency_count = rise_count
+    if tendency == 'ascend':
+        tendency_count = ascend_count
     elif tendency == 'descent':
         tendency_count = descent_count
     elif tendency == 'both':
@@ -128,3 +128,11 @@ def normalize_daily_dict_counter(tendency, updated_daily_dict_counter, rise_coun
         updated_daily_dict_counter[key] = round(updated_daily_dict_counter[key], 3)
 
     return updated_daily_dict_counter
+
+
+def initiate_square_dataframe_zeros(symbols_list):
+    zeros_dataframe = pd.DataFrame(index=symbols_list, columns=symbols_list)
+    for col in zeros_dataframe.columns:
+        zeros_dataframe[col].values[:] = 0
+
+    return zeros_dataframe
