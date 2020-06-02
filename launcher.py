@@ -15,12 +15,7 @@ import threading
 import concurrent.futures
 
 
-"""dict = advanced_analysis.\
-    selected_companies_percent_connection_strength_dict('nasdaq',
-                                                        'AMZN', ["KLXE",'MRKR', 'MTEX', 'RAPT', 'RTLR'],
-                                                        1, 'Percent-Change')
 
-print(dict)"""
 
 
 """funny_global = 0
@@ -58,14 +53,22 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
 # run_dict_test is a function
 
 
-testdict = advanced_analysis.top_x_influenced_by_selected_company_dict('nasdaq', 'AMZN', 'Percent-Change', 1, 20)
-print(testdict)
+"""testdict = advanced_analysis.top_x_influenced_by_selected_company_dict('nasdaq',
+                                                                       'AMZN', 'Percent-Change', 1, 'rise', 150, 40)
+print(testdict)"""
 
+
+testdict2 = advanced_analysis.\
+    selected_companies_percent_connection_strength_dict('nasdaq',
+                                                        'AMZN', ["ALEC",'AMRS', 'BEAM', 'MEIP', 'CNTY'],
+                                                        1, 'Percent-Change')
+
+print(testdict2)
 
 
 # EXECUTE TO SCRAPE ALL DAILY DATA:
-"""
-dataframe_of_top_by_column = backend_API.StocksSectionAdvanced().\
+
+"""dataframe_of_top_by_column = backend_API.StocksSectionAdvanced().\
     top_x_companies_by_column_with_specific_word_dataframe('corp',
                                                            'Percent-Change', 20, 'bottom')
 
