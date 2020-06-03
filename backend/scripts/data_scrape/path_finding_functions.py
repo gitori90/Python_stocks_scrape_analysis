@@ -4,6 +4,12 @@ import requests
 from bs4 import BeautifulSoup
 
 
+def set_points_file_path(title):
+    today = str(datetime.date.today())
+    file_path = r"backend\project_files" + r"\analysis_results" + r"\companies_points_" + title + ".xlsx"
+    return file_path
+
+
 def set_daily_data_file_path(title):
     today = str(datetime.date.today())
     file_path = r"backend\project_files" + r"\daily_data_excels_" + title + r"\{}".format(title) + today + ".xlsx"

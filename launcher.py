@@ -18,18 +18,20 @@ import concurrent.futures
 
 
 
-"""funny_global = 0
 
-def printer(something):
-    global funny_global
-    funny_global += 1
+
+"""def printer(something):
+
+
     j = 0
     for i in range(100000):
         j += 1
-    return something + 100
+    return something[0] + something[1]
+
+args = [[1,2], [3,4], [5,6]]
 
 with concurrent.futures.ThreadPoolExecutor() as executor:
-    x = executor.map(printer, [99,98,97,96,95,94,93,92])
+    x = executor.map(printer, args)
     for i in x:
         print(i)
         print(type(i))"""
@@ -52,8 +54,8 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
 # run_dict_test is a function
 
 
-"""testdict = advanced_analysis.top_x_influenced_by_selected_company_dict('nasdaq',
-                                                                       'AMZN', 'Percent-Change', 1, 'rise', 40)
+"""testdict = advanced_analysis.top_x_influenced_by_selected_company_dataframe(['nasdaq',
+                                                                       'AMZN', 'Percent-Change', 1, 'ascend', 40])
 print(testdict)"""
 
 
@@ -65,7 +67,17 @@ print(testdict)"""
 
 print(testdict2)"""
 
-advanced_analysis.create_ascending_points_dataframe('nasdaq', 1, 40)
+
+
+
+advanced_analysis.\
+    create_ascending_points_dataframe('nasdaq', 1, 40)
+
+
+
+
+
+#advanced_analysis.create_ascending_points_dataframe('nasdaq', 1, 40)
 
 
 # EXECUTE TO SCRAPE ALL DAILY DATA:

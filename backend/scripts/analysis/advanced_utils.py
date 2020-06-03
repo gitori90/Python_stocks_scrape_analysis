@@ -8,13 +8,6 @@ import threading
 import re
 
 
-def create_companies_zero_dict(market_name):
-    daily_dataframe = stocks_analysis.get_market_today_dataframe(market_name)
-    symbols_list = daily_dataframe['Symbol'].tolist()
-    dict_of_zeros = {symbols_list[i]: 0 for i in range(len(symbols_list))}
-    return dict_of_zeros
-
-
 def create_daily_signs_dict(symbols_list, column_values_list):
     today_signs_dict = {}
     for i in range(len(symbols_list)):
@@ -31,19 +24,27 @@ def build_counter_dict(symbols_list, today_signs_dict, company_value_sign, daily
 
     if tendency == 'both':
         for key in symbols_list:
-            company_value_of_dict = today_signs_dict[key] * company_value_sign
-            daily_dict_counter[key] += company_value_of_dict
+            try:
+                company_value_of_dict = today_signs_dict[key] * company_value_sign
+                daily_dict_counter[key] += company_value_of_dict
+            except KeyError:
+                pass
 
     elif tendency == 'ascend':
         for key in symbols_list:
-            if today_signs_dict[key] > 0 and company_value_sign > 0:
-                daily_dict_counter[key] += company_value_sign
+            try:
+                if today_signs_dict[key] > 0 and company_value_sign > 0:
+                    daily_dict_counter[key] += company_value_sign
+            except KeyError:
+                pass
 
     elif tendency == 'descent':
         for key in symbols_list:
-            if today_signs_dict[key] < 0 and company_value_sign < 0:
-                daily_dict_counter[key] += -company_value_sign
-
+            try:
+                if today_signs_dict[key] < 0 and company_value_sign < 0:
+                    daily_dict_counter[key] += -company_value_sign
+            except KeyError:
+                pass
     else:
         exit("Invalid input for tendency.")
 
@@ -63,11 +64,15 @@ def add_day_to_counter_dict(daily_dataframe, company_value_sign, col_name,
 
 
 def get_company_value_sign_from_daily_dataframe(today_dataframe, company_symbol, col_name):
-    today_chosen_company = today_dataframe[today_dataframe['Symbol'] == company_symbol]
+    try:
+        today_chosen_company = today_dataframe[today_dataframe['Symbol'] == company_symbol]
+    except:
+        return 0
     try:
         today_chosen_company_value = float(today_chosen_company[col_name])
     except:
-        raise
+        print("Error in today_chosen_company_value: ", today_chosen_company[col_name])
+        return 0
     try:
         value_sign = today_chosen_company_value / abs(today_chosen_company_value)
     except ZeroDivisionError:
@@ -90,7 +95,7 @@ def check_for_daily_gaps(daily_files_paths_list):
                   .format(dates_delta - 1, str(d1), str(d2)))
 
 
-def volume_filtered_market_dataframe(market_dataframe, volume_percent_filter=100):
+def volume_filtered_market_dataframe(market_dataframe, volume_percent_filter=0):
     if volume_percent_filter not in range(0, 101):
         exit("Invalid input for volume_percent_filter.")
 
@@ -103,6 +108,14 @@ def volume_filtered_market_dataframe(market_dataframe, volume_percent_filter=100
 
     volume_filtered_dataframe = volume_sorted_dataframe[:-chosen_percent_to_rows_to_remove]
     return volume_filtered_dataframe
+
+
+def create_companies_zero_dict(market_name, volume_percent_filter=0):
+    daily_dataframe = stocks_analysis.get_market_today_dataframe(market_name)
+    filtered_daily_dataframe = volume_filtered_market_dataframe(daily_dataframe, volume_percent_filter)
+    symbols_list = filtered_daily_dataframe['Symbol'].tolist()
+    dict_of_zeros = {symbols_list[i]: 0 for i in range(len(symbols_list))}
+    return dict_of_zeros
 
 
 def get_company_selected_column_value(today_dataframe, company_symbol, col_name):

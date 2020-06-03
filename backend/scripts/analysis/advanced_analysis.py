@@ -6,6 +6,7 @@ import backend.scripts.analysis.advanced_utils as advanced_utils
 from collections import Counter
 from datetime import date
 import threading
+import concurrent.futures
 import re
 
 LETTERS_LIST = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -87,40 +88,27 @@ def analyse_method_on_all_dataframes_partial_name(partial_name, method_name, col
     return method_result
 
 
-
-# WORKS ONLY IF COMPANY SYMBOLS START WITH LETTERS ONLY
-"""def split_symbols_list(symbols_list):
-    splitted_list_by_letters = []
-    letter_count = 0
-
-    temp_letter_list = []
-    for symbol in symbols_list:
-        if symbol[0] == LETTERS_LIST[letter_count]:
-            temp_letter_list.append(symbol)
-        else:
-            splitted_list_by_letters.append(temp_letter_list)
-            temp_letter_list = []
-            letter_count += 1
-
-    return splitted_list_by_letters"""
-
-
-
 def build_count_dict_from_daily_files(number_of_counted_days, daily_files_paths_list,
                                       company_symbol, col_name, delay_days, updated_daily_dict_counter,
                                       tendency, volume_percent_filter_to_remove=100):
     ascend_count = 0
     descent_count = 0
+
     for i in range(number_of_counted_days):
         today_dataframe = stocks_analysis.all_companies_data_frame(daily_files_paths_list[i])
-        volume_filtered_dataframe = advanced_utils.volume_filtered_market_dataframe(today_dataframe, volume_percent_filter_to_remove)
+        volume_filtered_dataframe = advanced_utils.\
+            volume_filtered_market_dataframe(today_dataframe, volume_percent_filter_to_remove)
 
-        company_value_sign = advanced_utils.get_company_value_sign_from_daily_dataframe(volume_filtered_dataframe, company_symbol, col_name)
+        company_value_sign = advanced_utils.\
+            get_company_value_sign_from_daily_dataframe(volume_filtered_dataframe,
+                                                        company_symbol, col_name)
 
         if company_value_sign > 0:
             ascend_count += 1
         elif company_value_sign < 0:
             descent_count += 1
+        else:
+            continue
 
         delayed_daily_dataframe = \
             stocks_analysis.all_companies_data_frame(daily_files_paths_list[i + delay_days])
@@ -139,10 +127,10 @@ def build_companies_counter_dict_for_specific_company(market_name, company_symbo
 
     daily_files_paths_list = path_finding_functions.get_all_daily_files_paths_in_specific_market(market_name)
     number_of_files = len(daily_files_paths_list)
-    advanced_utils.check_for_daily_gaps(daily_files_paths_list)  # put this where it displays only once (another function).
 
     number_of_counted_days = number_of_files - delay_days
-    initialized_daily_dict_counter = advanced_utils.create_companies_zero_dict(market_name)
+
+    initialized_daily_dict_counter = advanced_utils.create_companies_zero_dict(market_name, volume_percent_filter)
 
     updated_daily_dict_counter, ascend_count, descent_count = \
         build_count_dict_from_daily_files(number_of_counted_days, daily_files_paths_list,
@@ -155,11 +143,21 @@ def build_companies_counter_dict_for_specific_company(market_name, company_symbo
 
     return normalized_dict_counter
 
-
+company_count = 0
 # for API:
-def top_x_influenced_by_selected_company_dict(market_name, company_symbol, col_name,
-                                              delay_days, tendency,
-                                              volume_percent_filter=100, direct_or_reverse='direct'):
+def top_x_influenced_by_selected_company_dataframe(args_list):
+
+    market_name = args_list[0]
+    company_symbol = args_list[1]
+    col_name = args_list[2]
+    delay_days = args_list[3]
+    tendency = args_list[4]
+    volume_percent_filter = args_list[5]
+    try:
+        direct_or_reverse = args_list[6]
+    except IndexError:
+        direct_or_reverse = 'direct'
+
     flag = False
     if direct_or_reverse == 'direct':
         flag = True
@@ -167,17 +165,21 @@ def top_x_influenced_by_selected_company_dict(market_name, company_symbol, col_n
     updated_daily_dict_counter = \
         build_companies_counter_dict_for_specific_company(market_name, company_symbol,
                                                           col_name, delay_days, tendency, volume_percent_filter)
-
     """sorted_counter_dict = {}"""
-    sorted_daily_dict_counter = sorted(updated_daily_dict_counter.items(), key=lambda x: x[1], reverse=flag)
+    #sorted_daily_dict_counter = sorted(updated_daily_dict_counter.items(), key=lambda x: x[1], reverse=flag)
+
+    result_dataframe = pd.DataFrame.from_dict(updated_daily_dict_counter, orient='index')
+    result_dataframe = result_dataframe.T
     """j = 0
     for i in sorted_daily_dict_counter:
         j += 1
         sorted_counter_dict[i[0]] = i[1]
         if j > number_to_show:
             break"""
-
-    return sorted_daily_dict_counter
+    global company_count
+    company_count += 1
+    print("number of companies finished: ", company_count)
+    return result_dataframe
 
 
 
@@ -245,7 +247,6 @@ def splitted_symbols_list(symbols_list, number_of_sublists):
     i = 0
     while i < total_symbols:
         splitted_list.append(symbols_list[i:i+numb_in_each_sublist])
-        print(len(splitted_list[-1]))
         i += numb_in_each_sublist
 
     return splitted_list
@@ -255,6 +256,8 @@ def create_ascending_points_dataframe(market_name, delay_days,
                                       volume_percent_filter=0, column_name='Percent-Change'):
 
     daily_files_paths_list = path_finding_functions.get_all_daily_files_paths_in_specific_market(market_name)
+    advanced_utils.check_for_daily_gaps(daily_files_paths_list)
+    number_of_days = len(daily_files_paths_list) - delay_days
     sample_dataframe = stocks_analysis.all_companies_data_frame(daily_files_paths_list[0])
 
     initial_volume_filtered_dataframe = \
@@ -262,19 +265,28 @@ def create_ascending_points_dataframe(market_name, delay_days,
 
     symbols_list = initial_volume_filtered_dataframe['Symbol'].tolist()
 
-    #zeros_squared_dataframe = advanced_utils.initiate_square_dataframe_zeros(symbols_list)
+    companies_squared_dataframe = advanced_utils.initiate_square_dataframe_zeros(symbols_list)
 
-    splitted_list = splitted_symbols_list(symbols_list, 30)
+    splitted_list_of_symbols = splitted_symbols_list(symbols_list, 100)
 
-    """threads = []
-    for symbol in symbols_list:
-        thread = threading.Thread(target=top_x_influenced_by_selected_company_dict,
-                                  args=(market_name, symbol, 'Percent-Change',
-                                        delay_days, 'ascend', volume_percent_filter))
-        thread.append(thread)
-        thread.start()
 
-    for thread in threads:
-        thread.join()"""
+
+
+    for partial_company_symbols_list in splitted_list_of_symbols:
+        args_list = [[market_name, company_symbol, column_name, delay_days, 'ascend', volume_percent_filter]
+                     for company_symbol in partial_company_symbols_list]
+
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            company_points_dataframes = executor.map(top_x_influenced_by_selected_company_dataframe, args_list)
+            for points_dataframe in company_points_dataframes:
+                for symbol in symbols_list:
+                    try:
+                        companies_squared_dataframe[symbol] += points_dataframe[symbol] / number_of_days
+                    except KeyError:
+                        pass
+
+    file_path = path_functions.set_points_file_path(market_name)
+    writer = pd.ExcelWriter(file_path, engine='xlsxwriter')
+    companies_squared_dataframe.to_excel(writer)
 
 
