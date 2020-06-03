@@ -71,7 +71,7 @@ def get_company_value_sign_from_daily_dataframe(today_dataframe, company_symbol,
     try:
         today_chosen_company_value = float(today_chosen_company[col_name])
     except:
-        print("Error in today_chosen_company_value: ", today_chosen_company[col_name])
+        print("Error in today_chosen_company_value. Company: ", company_symbol)
         return 0
     try:
         value_sign = today_chosen_company_value / abs(today_chosen_company_value)
@@ -137,7 +137,12 @@ def normalize_daily_dict_counter(tendency, updated_daily_dict_counter, ascend_co
         exit("Invalid input for tendency.")
 
     for key in updated_daily_dict_counter:
-        updated_daily_dict_counter[key] /= tendency_count
+        try:
+            updated_daily_dict_counter[key] /= tendency_count
+        except ZeroDivisionError:
+
+            updated_daily_dict_counter[key] = 0
+            continue
         updated_daily_dict_counter[key] = round(updated_daily_dict_counter[key], 3)
 
     return updated_daily_dict_counter

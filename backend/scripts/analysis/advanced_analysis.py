@@ -145,7 +145,7 @@ def build_companies_counter_dict_for_specific_company(market_name, company_symbo
 
 company_count = 0
 # for API:
-def top_x_influenced_by_selected_company_dataframe(args_list):
+def top_x_influenced_by_selected_company_dict(args_list):
 
     market_name = args_list[0]
     company_symbol = args_list[1]
@@ -153,33 +153,22 @@ def top_x_influenced_by_selected_company_dataframe(args_list):
     delay_days = args_list[3]
     tendency = args_list[4]
     volume_percent_filter = args_list[5]
-    try:
+    """try:
         direct_or_reverse = args_list[6]
     except IndexError:
-        direct_or_reverse = 'direct'
-
-    flag = False
-    if direct_or_reverse == 'direct':
-        flag = True
+        direct_or_reverse = 'direct'"""
 
     updated_daily_dict_counter = \
         build_companies_counter_dict_for_specific_company(market_name, company_symbol,
                                                           col_name, delay_days, tendency, volume_percent_filter)
-    """sorted_counter_dict = {}"""
-    #sorted_daily_dict_counter = sorted(updated_daily_dict_counter.items(), key=lambda x: x[1], reverse=flag)
 
     result_dataframe = pd.DataFrame.from_dict(updated_daily_dict_counter, orient='index')
     result_dataframe = result_dataframe.T
-    """j = 0
-    for i in sorted_daily_dict_counter:
-        j += 1
-        sorted_counter_dict[i[0]] = i[1]
-        if j > number_to_show:
-            break"""
+    result_dict = {company_symbol: result_dataframe}
     global company_count
     company_count += 1
     print("number of companies finished: ", company_count)
-    return result_dataframe
+    return result_dict
 
 
 
@@ -206,6 +195,7 @@ def selected_companies_percent_connection_strength_dict(market_name, company_sym
         try:
             focused_company_value_sign = focused_company_selected_value / abs(focused_company_selected_value)
         except ZeroDivisionError:
+            print("focused_company_selected_value = 0 for: ", company_symbol)
             continue
 
         if focused_company_value_sign > 0:
@@ -267,26 +257,28 @@ def create_ascending_points_dataframe(market_name, delay_days,
 
     companies_squared_dataframe = advanced_utils.initiate_square_dataframe_zeros(symbols_list)
 
-    splitted_list_of_symbols = splitted_symbols_list(symbols_list, 100)
-
-
-
+    splitted_list_of_symbols = splitted_symbols_list(symbols_list, 200)
 
     for partial_company_symbols_list in splitted_list_of_symbols:
         args_list = [[market_name, company_symbol, column_name, delay_days, 'ascend', volume_percent_filter]
                      for company_symbol in partial_company_symbols_list]
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            company_points_dataframes = executor.map(top_x_influenced_by_selected_company_dataframe, args_list)
-            for points_dataframe in company_points_dataframes:
+            company_points_dataframe_dicts = executor.map(top_x_influenced_by_selected_company_dict, args_list)
+            for points_dicts in company_points_dataframe_dicts:
+                points_giving_company_symbol = list(points_dicts.keys())[0]
+                points_giving_company_dataframe = list(points_dicts.values())[0]
                 for symbol in symbols_list:
                     try:
-                        companies_squared_dataframe[symbol] += points_dataframe[symbol] / number_of_days
+                        companies_squared_dataframe.at[points_giving_company_symbol, symbol] += \
+                            points_giving_company_dataframe.at[0, symbol] / number_of_days
                     except KeyError:
                         pass
+        break
 
-    file_path = path_functions.set_points_file_path(market_name)
+    file_path = path_finding_functions.set_points_file_path(market_name + "_ascend")
     writer = pd.ExcelWriter(file_path, engine='xlsxwriter')
     companies_squared_dataframe.to_excel(writer)
+    writer.save()
 
 

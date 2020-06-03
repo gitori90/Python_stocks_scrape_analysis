@@ -6,7 +6,8 @@ from bs4 import BeautifulSoup
 
 def set_points_file_path(title):
     today = str(datetime.date.today())
-    file_path = r"backend\project_files" + r"\analysis_results" + r"\companies_points_" + title + ".xlsx"
+    file_path = r"backend\project_files" + r"\analysis_results" \
+                + r"\companies_points_" + title + " " + today + ".xlsx"
     return file_path
 
 
