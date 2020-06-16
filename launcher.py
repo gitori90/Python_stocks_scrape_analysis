@@ -1,8 +1,6 @@
 ##############################################################
 #
 #
-#   call the functions of stocks_backend_API from here
-# this is just a script used to play with those functions
 #
 #
 ##############################################################
@@ -70,23 +68,23 @@ print(testdict2)"""
 
 
 
-advanced_analysis.\
-    create_ascending_points_dataframe('nasdaq', 1, 40)
+"""advanced_analysis.\
+    create_ascending_points_dataframe('nasdaq', 1, 40)"""
 
 
 
 
 
-#advanced_analysis.create_ascending_points_dataframe('nasdaq', 1, 40)
+# advanced_analysis.create_ascending_points_dataframe('nasdaq', 1, 40)
 
 
 # EXECUTE TO SCRAPE ALL DAILY DATA:
 
-"""dataframe_of_top_by_column = backend_API.StocksSectionAdvanced().\
+dataframe_of_top_by_column = backend_API.StocksSectionAdvanced().\
     top_x_companies_by_column_with_specific_word_dataframe('corp',
                                                            'Percent-Change', 20, 'bottom')
 
-print(dataframe_of_top_by_column)"""
+print(dataframe_of_top_by_column)
 
 
 

@@ -20,9 +20,9 @@ def create_daily_signs_dict(symbols_list, column_values_list):
     return today_signs_dict
 
 
-def build_counter_dict(symbols_list, today_signs_dict, company_value_sign, daily_dict_counter, tendency):
+def build_counter_dict(symbols_list, today_signs_dict, company_value_sign, daily_dict_counter, ascend_or_descend):
 
-    if tendency == 'both':
+    if ascend_or_descend == 'both':
         for key in symbols_list:
             try:
                 company_value_of_dict = today_signs_dict[key] * company_value_sign
@@ -30,7 +30,7 @@ def build_counter_dict(symbols_list, today_signs_dict, company_value_sign, daily
             except KeyError:
                 pass
 
-    elif tendency == 'ascend':
+    elif ascend_or_descend == 'ascend':
         for key in symbols_list:
             try:
                 if today_signs_dict[key] > 0 and company_value_sign > 0:
@@ -38,7 +38,7 @@ def build_counter_dict(symbols_list, today_signs_dict, company_value_sign, daily
             except KeyError:
                 pass
 
-    elif tendency == 'descent':
+    elif ascend_or_descend == 'descent':
         for key in symbols_list:
             try:
                 if today_signs_dict[key] < 0 and company_value_sign < 0:
@@ -46,20 +46,20 @@ def build_counter_dict(symbols_list, today_signs_dict, company_value_sign, daily
             except KeyError:
                 pass
     else:
-        exit("Invalid input for tendency.")
+        exit("Invalid input for ascend_or_descend.")
 
     return daily_dict_counter
 
 
 def add_day_to_counter_dict(daily_dataframe, company_value_sign, col_name,
-                            daily_dict_counter, tendency='both'):
+                            daily_dict_counter, ascend_or_descend='both'):
 
     symbols_list = daily_dataframe['Symbol'].tolist()
     column_values_list = daily_dataframe[col_name].tolist()
     today_signs_dict = create_daily_signs_dict(symbols_list, column_values_list)
 
     daily_dict_counter = build_counter_dict(symbols_list, today_signs_dict,
-                                            company_value_sign, daily_dict_counter, tendency)
+                                            company_value_sign, daily_dict_counter, ascend_or_descend)
     return daily_dict_counter
 
 
@@ -134,7 +134,7 @@ def normalize_daily_dict_counter(tendency, updated_daily_dict_counter, ascend_co
     elif tendency == 'both':
         pass
     else:
-        exit("Invalid input for tendency.")
+        exit("Invalid input for ascend_count.")
 
     for key in updated_daily_dict_counter:
         try:
@@ -154,3 +154,15 @@ def initiate_square_dataframe_zeros(symbols_list):
         zeros_dataframe[col].values[:] = 0
 
     return zeros_dataframe
+
+
+def splitted_symbols_list(symbols_list, number_of_sublists):
+    total_symbols = len(symbols_list)
+    numb_in_each_sublist = int(total_symbols/number_of_sublists)
+    splitted_list = []
+    i = 0
+    while i < total_symbols:
+        splitted_list.append(symbols_list[i:i+numb_in_each_sublist])
+        i += numb_in_each_sublist
+
+    return splitted_list
