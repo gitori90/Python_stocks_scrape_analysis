@@ -121,6 +121,9 @@ def build_count_dict_from_daily_files(number_of_counted_days, daily_files_paths_
         volume_filtered_delayed_dataframe = \
             advanced_utils.volume_filtered_market_dataframe(delayed_daily_dataframe, volume_percent_filter_to_remove)
 
+        #   print("TRNX" in volume_filtered_delayed_dataframe['Symbol'].tolist())
+        #   print("TRNX" in volume_filtered_dataframe['Symbol'].tolist())
+
         updated_daily_dict_counter = \
             advanced_utils.add_day_to_counter_dict(volume_filtered_delayed_dataframe,
                                                    company_value_sign, col_name,
@@ -138,7 +141,7 @@ def build_companies_counter_dict_for_specific_company(market_name, company_symbo
     number_of_counted_days = number_of_files - delay_days
 
     initialized_daily_dict_counter = advanced_utils.create_companies_zero_dict(market_name, volume_percent_filter)
-
+    # print("TRNX" in initialized_daily_dict_counter.keys())
     updated_daily_dict_counter, ascend_count, descent_count = \
         build_count_dict_from_daily_files(number_of_counted_days, daily_files_paths_list,
                                           company_symbol, col_name, delay_days,
@@ -285,13 +288,14 @@ def build_companies_squared_dataframe(symbols_list, splitted_list_of_symbols,
                             points_giving_company_dataframe.at[0, symbol]
                     except KeyError:
                         pass
+        # this break is here so we can test things on 1 iteration instead of a ton of them.
         break
 
     return companies_squared_dataframe
 
 
-def create_ascending_points_dataframe(market_name, delay_days,
-                                      volume_percent_filter=0, column_name='Percent-Change'):
+def create_points_dataframe(market_name, delay_days,
+                            volume_percent_filter=0, ascend_or_descend='ascend', column_name='Percent-Change'):
 
     daily_files_paths_list = path_finding_functions.get_all_daily_files_paths_in_specific_market(market_name)
     advanced_utils.check_for_daily_gaps(daily_files_paths_list)
@@ -310,9 +314,9 @@ def create_ascending_points_dataframe(market_name, delay_days,
         build_companies_squared_dataframe(symbols_list, splitted_list_of_symbols,
                                           number_of_days_to_analyze, column_name,
                                           market_name, delay_days, volume_percent_filter,
-                                          'ascend')
+                                          ascend_or_descend)
 
-    file_path = path_finding_functions.set_points_file_path(market_name + "_ascend")
+    file_path = path_finding_functions.set_points_file_path(market_name + "_" + ascend_or_descend)
     writer = pd.ExcelWriter(file_path, engine='xlsxwriter')
     companies_squared_dataframe.to_excel(writer)
     writer.save()

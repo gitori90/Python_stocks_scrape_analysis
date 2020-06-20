@@ -36,3 +36,13 @@ class GlobalConnections:
     """def create_companies_dict_of_zeros(self, market_name):
         requested_dict = advanced_analysis.create_companies_zero_dict(market_name)
         return requested_dict"""
+
+    def create_ascending_points_dataframe(self, market_name, delay_days,
+                                          volume_percent_filter=0, column_name='Percent-Change'):
+        advanced_analysis.create_points_dataframe(market_name, delay_days,
+                            volume_percent_filter, 'ascend', column_name)
+
+    def create_descending_points_dataframe(self, market_name, delay_days,
+                                          volume_percent_filter=0, column_name='Percent-Change'):
+        advanced_analysis.create_points_dataframe(market_name, delay_days,
+                            volume_percent_filter, 'descend', column_name)

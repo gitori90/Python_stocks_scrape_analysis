@@ -6,6 +6,7 @@ from collections import Counter
 from datetime import date
 import threading
 import re
+import inspect
 
 
 def create_daily_signs_dict(symbols_list, column_values_list):
@@ -38,7 +39,7 @@ def build_counter_dict(symbols_list, today_signs_dict, company_value_sign, daily
             except KeyError:
                 pass
 
-    elif ascend_or_descend == 'descent':
+    elif ascend_or_descend == 'descend':
         for key in symbols_list:
             try:
                 if today_signs_dict[key] < 0 and company_value_sign < 0:
@@ -46,14 +47,14 @@ def build_counter_dict(symbols_list, today_signs_dict, company_value_sign, daily
             except KeyError:
                 pass
     else:
-        exit("Invalid input for ascend_or_descend.")
+        line_number = inspect.getframeinfo(inspect.currentframe()).lineno
+        exit("advanced_utils, line {}: Invalid input for ascend_or_descend: ".format(line_number) + ascend_or_descend)
 
     return daily_dict_counter
 
 
 def add_day_to_counter_dict(daily_dataframe, company_value_sign, col_name,
                             daily_dict_counter, ascend_or_descend='both'):
-
     symbols_list = daily_dataframe['Symbol'].tolist()
     column_values_list = daily_dataframe[col_name].tolist()
     today_signs_dict = create_daily_signs_dict(symbols_list, column_values_list)
@@ -67,6 +68,7 @@ def get_company_value_sign_from_daily_dataframe(today_dataframe, company_symbol,
     try:
         today_chosen_company = today_dataframe[today_dataframe['Symbol'] == company_symbol]
     except:
+        # print(company_symbol, " advanced utils 71")
         return 0
     try:
         today_chosen_company_value = float(today_chosen_company[col_name])
@@ -103,8 +105,12 @@ def volume_filtered_market_dataframe(market_dataframe, volume_percent_filter=0):
     if volume_percent_filter == 0:
         return volume_sorted_dataframe
 
-    number_of_rows = len(volume_sorted_dataframe['Volume'].tolist())
+    volume_list = volume_sorted_dataframe['Volume'].tolist()
+
+    number_of_rows = len(volume_list)
     chosen_percent_to_rows_to_remove = int(number_of_rows * volume_percent_filter / 100)
+
+    #print("volume filter threshold: " + str(volume_list[chosen_percent_to_rows_to_remove]))
 
     volume_filtered_dataframe = volume_sorted_dataframe[:-chosen_percent_to_rows_to_remove]
     return volume_filtered_dataframe
@@ -129,18 +135,19 @@ def normalize_daily_dict_counter(tendency, updated_daily_dict_counter, ascend_co
     tendency_count = number_of_counted_days
     if tendency == 'ascend':
         tendency_count = ascend_count
-    elif tendency == 'descent':
+    elif tendency == 'descend':
         tendency_count = descent_count
     elif tendency == 'both':
         pass
     else:
-        exit("Invalid input for ascend_count.")
+        line_number = inspect.getframeinfo(inspect.currentframe()).lineno
+        exit("advanced_utils, line {}: Invalid input for ascend_or_descend: ".format(line_number) + ascend_or_descend)
 
     for key in updated_daily_dict_counter:
         try:
             updated_daily_dict_counter[key] /= tendency_count
         except ZeroDivisionError:
-
+            # print(key, " advanced utils 145")
             updated_daily_dict_counter[key] = 0
             continue
         updated_daily_dict_counter[key] = round(updated_daily_dict_counter[key], 3)

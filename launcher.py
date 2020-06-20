@@ -11,6 +11,7 @@ import backend.scripts.data_scrape.path_finding_functions as path_finding_functi
 
 import threading
 import concurrent.futures
+import inspect
 
 
 
@@ -68,14 +69,11 @@ print(testdict2)"""
 
 
 
-"""advanced_analysis.\
-    create_ascending_points_dataframe('nasdaq', 1, 40)"""
+#print(inspect.getframeinfo(inspect.currentframe()).lineno)
 
 
-
-
-
-# advanced_analysis.create_ascending_points_dataframe('nasdaq', 1, 40)
+#backend_API.StocksSectionAdvanced().create_ascending_points_dataframe('nasdaq', 1, 20)
+#backend_API.StocksSectionAdvanced().create_descending_points_dataframe('nasdaq', 1, 20)
 
 
 # EXECUTE TO SCRAPE ALL DAILY DATA:
