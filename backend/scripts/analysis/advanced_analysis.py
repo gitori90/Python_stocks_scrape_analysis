@@ -92,7 +92,7 @@ def analyse_method_on_all_dataframes_partial_name(partial_name, method_name, col
 
 def build_count_dict_from_daily_files(number_of_counted_days, daily_files_paths_list,
                                       company_symbol, col_name, delay_days, updated_daily_dict_counter,
-                                      ascend_or_descend, volume_percent_filter_to_remove=100):
+                                      ascend_or_descend, volume_percent_filter_to_remove=0):
     ascend_count = 0
     descent_count = 0
 
@@ -121,8 +121,17 @@ def build_count_dict_from_daily_files(number_of_counted_days, daily_files_paths_
         volume_filtered_delayed_dataframe = \
             advanced_utils.volume_filtered_market_dataframe(delayed_daily_dataframe, volume_percent_filter_to_remove)
 
-        #   print("TRNX" in volume_filtered_delayed_dataframe['Symbol'].tolist())
-        #   print("TRNX" in volume_filtered_dataframe['Symbol'].tolist())
+        """check_for_identical_consecutive_company_values = advanced_utils.\
+            is_identical_consecutive_company_values(volume_filtered_dataframe,
+                                                    volume_filtered_delayed_dataframe, company_symbol)
+        if check_for_identical_consecutive_company_values is True:
+            continue"""
+        day1_col = volume_filtered_dataframe[col_name]
+        day2_col = volume_filtered_delayed_dataframe[col_name]
+        check_equals = day1_col.equals(day2_col)
+        if check_equals is True:
+            print("identical files:\n" + daily_files_paths_list[i] + "\n" + daily_files_paths_list[i + delay_days])
+            continue
 
         updated_daily_dict_counter = \
             advanced_utils.add_day_to_counter_dict(volume_filtered_delayed_dataframe,
@@ -246,9 +255,8 @@ def selected_companies_percent_connection_strength_dict(market_name, company_sym
 
 
 def build_companies_squared_dataframe(symbols_list, splitted_list_of_symbols,
-                                      number_of_days_to_analyze, column_name,
-                                      market_name, delay_days, volume_percent_filter,
-                                      ascend_or_descend='ascend'):
+                                      column_name, market_name, delay_days,
+                                      volume_percent_filter, ascend_or_descend='ascend'):
 
     companies_squared_dataframe = advanced_utils.initiate_square_dataframe_zeros(symbols_list)
     for partial_company_symbols_list in splitted_list_of_symbols:
@@ -299,7 +307,6 @@ def create_points_dataframe(market_name, delay_days,
 
     daily_files_paths_list = path_finding_functions.get_all_daily_files_paths_in_specific_market(market_name)
     advanced_utils.check_for_daily_gaps(daily_files_paths_list)
-    number_of_days_to_analyze = len(daily_files_paths_list) - delay_days
     sample_daily_dataframe = stocks_analysis.all_companies_data_frame(daily_files_paths_list[0])
 
     initial_volume_filtered_dataframe = \
@@ -312,9 +319,8 @@ def create_points_dataframe(market_name, delay_days,
 
     companies_squared_dataframe = \
         build_companies_squared_dataframe(symbols_list, splitted_list_of_symbols,
-                                          number_of_days_to_analyze, column_name,
-                                          market_name, delay_days, volume_percent_filter,
-                                          ascend_or_descend)
+                                          column_name, market_name, delay_days,
+                                          volume_percent_filter, ascend_or_descend)
 
     file_path = path_finding_functions.set_points_file_path(market_name + "_" + ascend_or_descend)
     writer = pd.ExcelWriter(file_path, engine='xlsxwriter')
