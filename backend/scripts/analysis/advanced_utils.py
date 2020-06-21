@@ -73,7 +73,7 @@ def get_company_value_sign_from_daily_dataframe(today_dataframe, company_symbol,
     try:
         today_chosen_company_value = float(today_chosen_company[col_name])
     except:
-        print("Error in today_chosen_company_value. Company: ", company_symbol)
+        # print("Error in today_chosen_company_value. Company: ", company_symbol)
         return 0
     try:
         value_sign = today_chosen_company_value / abs(today_chosen_company_value)

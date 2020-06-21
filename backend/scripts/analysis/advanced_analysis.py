@@ -94,7 +94,7 @@ def build_count_dict_from_daily_files(number_of_counted_days, daily_files_paths_
                                       company_symbol, col_name, delay_days, updated_daily_dict_counter,
                                       ascend_or_descend, volume_percent_filter_to_remove=0):
     ascend_count = 0
-    descent_count = 0
+    descend_count = 0
 
     for i in range(number_of_counted_days):
         today_dataframe = stocks_analysis.all_companies_data_frame(daily_files_paths_list[i])
@@ -110,7 +110,7 @@ def build_count_dict_from_daily_files(number_of_counted_days, daily_files_paths_
             if ascend_or_descend == 'descend':
                 continue
         elif company_value_sign < 0:
-            descent_count += 1
+            descend_count += 1
             if ascend_or_descend == 'ascend':
                 continue
         else:
@@ -118,27 +118,33 @@ def build_count_dict_from_daily_files(number_of_counted_days, daily_files_paths_
 
         delayed_daily_dataframe = \
             stocks_analysis.all_companies_data_frame(daily_files_paths_list[i + delay_days])
-        volume_filtered_delayed_dataframe = \
-            advanced_utils.volume_filtered_market_dataframe(delayed_daily_dataframe, volume_percent_filter_to_remove)
 
-        """check_for_identical_consecutive_company_values = advanced_utils.\
-            is_identical_consecutive_company_values(volume_filtered_dataframe,
-                                                    volume_filtered_delayed_dataframe, company_symbol)
-        if check_for_identical_consecutive_company_values is True:
-            continue"""
-        day1_col = volume_filtered_dataframe[col_name]
-        day2_col = volume_filtered_delayed_dataframe[col_name]
+        day1_col = today_dataframe[col_name]
+        day2_col = delayed_daily_dataframe[col_name]
         check_equals = day1_col.equals(day2_col)
         if check_equals is True:
-            print("identical files:\n" + daily_files_paths_list[i] + "\n" + daily_files_paths_list[i + delay_days])
+            # print("identical files:\n" + daily_files_paths_list[i] + "\n" + daily_files_paths_list[i + delay_days])
             continue
+
+        volume_filtered_delayed_dataframe = \
+            advanced_utils.volume_filtered_market_dataframe(delayed_daily_dataframe, volume_percent_filter_to_remove)
 
         updated_daily_dict_counter = \
             advanced_utils.add_day_to_counter_dict(volume_filtered_delayed_dataframe,
                                                    company_value_sign, col_name,
                                                    updated_daily_dict_counter, ascend_or_descend)
+        """if company_symbol == 'SRNE':
+            print("####################################")
+            print("focus day :", daily_files_paths_list[i])
+            print("delayed day: ", daily_files_paths_list[i + delay_days])
+            print("updated points to TOPS: ", updated_daily_dict_counter['TOPS'])
+            print("percent-change for SRNE: ", today_dataframe[today_dataframe['Symbol'] == 'SRNE']['Percent-Change'].tolist()[0])
+            print("percent-change for TOPS: ", delayed_daily_dataframe[delayed_daily_dataframe['Symbol'] == 'TOPS']['Percent-Change'].tolist()[0])
+            print("current descend_count for SRNE: {}".format(descend_count))
 
-    return updated_daily_dict_counter, ascend_count, descent_count
+            print("####################################")"""
+
+    return updated_daily_dict_counter, ascend_count, descend_count
 
 
 def build_companies_counter_dict_for_specific_company(market_name, company_symbol, col_name,
