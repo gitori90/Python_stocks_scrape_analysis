@@ -9,22 +9,26 @@ import re
 import inspect
 
 
-def create_daily_signs_dict(symbols_list, column_values_list):
+def create_daily_dict(symbols_list, column_values_list, sign_or_value):
     today_signs_dict = {}
     for i in range(len(symbols_list)):
-        try:
-            sign_value = column_values_list[i] / abs(column_values_list[i])
-        except ZeroDivisionError:
-            sign_value = 0
+        if sign_or_value == 'sign':
+            try:
+                sign_value = column_values_list[i] / abs(column_values_list[i])
+            except ZeroDivisionError:
+                sign_value = 0
+        else:
+            sign_value = column_values_list[i]
 
         today_signs_dict[symbols_list[i]] = sign_value
     return today_signs_dict
 
 
-def build_counter_dict(symbols_list, today_signs_dict, company_value_sign, daily_dict_counter, ascend_or_descend):
+def build_counter_dict(symbols_list, today_signs_dict, company_value_sign,
+                       daily_dict_counter, ascend_or_descend, sign_or_value='sign'):
 
-    if ascend_or_descend == 'both':
-        for key in symbols_list:
+    if ascend_or_descend == 'both':  # note: this option has value only if delay_days is 0.
+        for key in symbols_list:     # also, revisit (and modify!) this part if you ever need to use 'both'.
             try:
                 company_value_of_dict = today_signs_dict[key] * company_value_sign
                 daily_dict_counter[key] += company_value_of_dict
@@ -35,7 +39,11 @@ def build_counter_dict(symbols_list, today_signs_dict, company_value_sign, daily
         for key in symbols_list:
             try:
                 if today_signs_dict[key] > 0 and company_value_sign > 0:
-                    daily_dict_counter[key] += company_value_sign
+                    if sign_or_value == 'sign':
+                        daily_dict_counter[key] += today_signs_dict[key]
+                    elif sign_or_value == 'value':
+                        daily_dict_counter[key] += today_signs_dict[key] / company_value_sign
+
             except KeyError:
                 pass
 
@@ -43,7 +51,10 @@ def build_counter_dict(symbols_list, today_signs_dict, company_value_sign, daily
         for key in symbols_list:
             try:
                 if today_signs_dict[key] < 0 and company_value_sign < 0:
-                    daily_dict_counter[key] += -company_value_sign
+                    if sign_or_value == 'sign':
+                        daily_dict_counter[key] += -today_signs_dict[key]
+                    elif sign_or_value == 'value':
+                        daily_dict_counter[key] += today_signs_dict[key] / company_value_sign
             except KeyError:
                 pass
     else:
@@ -54,13 +65,15 @@ def build_counter_dict(symbols_list, today_signs_dict, company_value_sign, daily
 
 
 def add_day_to_counter_dict(daily_dataframe, company_value_sign, col_name,
-                            daily_dict_counter, ascend_or_descend='both'):
+                            daily_dict_counter, ascend_or_descend='both', sign_or_value='sign'):
     symbols_list = daily_dataframe['Symbol'].tolist()
     column_values_list = daily_dataframe[col_name].tolist()
-    today_signs_dict = create_daily_signs_dict(symbols_list, column_values_list)
 
-    daily_dict_counter = build_counter_dict(symbols_list, today_signs_dict,
-                                            company_value_sign, daily_dict_counter, ascend_or_descend)
+    today_dict = create_daily_dict(symbols_list, column_values_list, sign_or_value)
+
+    daily_dict_counter = build_counter_dict(symbols_list, today_dict,
+                                            company_value_sign, daily_dict_counter,
+                                            ascend_or_descend, sign_or_value)
     return daily_dict_counter
 
 

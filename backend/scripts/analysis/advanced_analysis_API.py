@@ -38,11 +38,13 @@ class GlobalConnections:
         return requested_dict"""
 
     def create_ascending_points_dataframe(self, market_name, delay_days,
-                                          volume_percent_filter=0, column_name='Percent-Change'):
+                                          volume_percent_filter=0, sign_or_value='value',
+                                          column_name='Percent-Change'):
         advanced_analysis.create_points_dataframe(market_name, delay_days,
-                            volume_percent_filter, 'ascend', column_name)
+                            volume_percent_filter, 'ascend', column_name, sign_or_value)
 
     def create_descending_points_dataframe(self, market_name, delay_days,
-                                          volume_percent_filter=0, column_name='Percent-Change'):
+                                           volume_percent_filter=0, sign_or_value='value',
+                                           column_name='Percent-Change'):
         advanced_analysis.create_points_dataframe(market_name, delay_days,
-                            volume_percent_filter, 'descend', column_name)
+                            volume_percent_filter, 'descend', column_name, sign_or_value)

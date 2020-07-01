@@ -72,8 +72,8 @@ print(testdict2)"""
 #print(inspect.getframeinfo(inspect.currentframe()).lineno)
 
 
-#backend_API.StocksSectionAdvanced().create_ascending_points_dataframe('nasdaq', 1, 20)
-backend_API.StocksSectionAdvanced().create_descending_points_dataframe('nasdaq', 1, 20)
+backend_API.StocksSectionAdvanced().create_ascending_points_dataframe('nasdaq', 1, 20)
+#backend_API.StocksSectionAdvanced().create_descending_points_dataframe('nasdaq', 1, 20)
 
 
 # EXECUTE TO SCRAPE ALL DAILY DATA:
