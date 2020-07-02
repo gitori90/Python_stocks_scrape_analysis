@@ -90,13 +90,41 @@ def analyse_method_on_all_dataframes_partial_name(partial_name, method_name, col
     return method_result
 
 
+# when the print is no more needed - REMOVE the last 3 inputs:
+def check_equal_days_values(today_dataframe, delayed_daily_dataframe, col_name,
+                            next_company_values, previous_company_values,
+                            company_symbol, daily_files_paths_list, i):
+
+    # check if the focused day and the delayed day contain the exact same data (if so - skip):
+    day1_col = today_dataframe[col_name]
+    day2_col = delayed_daily_dataframe[col_name]
+    check_equals = day1_col.equals(day2_col)
+    if check_equals is True:
+        return True
+
+    # check if following days of the focused company hold the exact same values
+    # (aka no change at all -> skip):
+    check_value_equals = next_company_values.equals(previous_company_values)
+    if check_value_equals is True:
+        print(company_symbol + " values null change between:")
+        print(daily_files_paths_list[i - 1])
+        print(daily_files_paths_list[i])
+        return True
+
+    return False
+
+
 def build_count_dict_from_daily_files(number_of_counted_days, daily_files_paths_list,
                                       company_symbol, col_name, delay_days, updated_daily_dict_counter,
                                       ascend_or_descend, volume_percent_filter_to_remove=0, sign_or_value='sign'):
     ascend_count = 0
     descend_count = 0
     company_value_sign = 0
+    previous_company_values = 0
 
+    print(company_symbol, ascend_or_descend, sign_or_value)
+
+    # run over each daily file, focusing on a specific company (company_symbol):
     for i in range(number_of_counted_days):
         today_dataframe = stocks_analysis.all_companies_data_frame(daily_files_paths_list[i])
         volume_filtered_dataframe = advanced_utils.\
@@ -117,12 +145,25 @@ def build_count_dict_from_daily_files(number_of_counted_days, daily_files_paths_
 
         delayed_daily_dataframe = \
             stocks_analysis.all_companies_data_frame(daily_files_paths_list[i + delay_days])
-        day1_col = today_dataframe[col_name]
-        day2_col = delayed_daily_dataframe[col_name]
-        check_equals = day1_col.equals(day2_col)
+
+        next_company_values = volume_filtered_dataframe[volume_filtered_dataframe['Symbol'] == company_symbol]
+
+
+
+
+        # when the print is no more needed - REMOVE the LAST 3 inputs:
+        check_equals = check_equal_days_values(today_dataframe, delayed_daily_dataframe,
+                                               col_name, next_company_values, previous_company_values,
+                                               company_symbol, daily_files_paths_list, i)
+
+
+        previous_company_values = next_company_values
         if check_equals is True:
-            # print("identical files:\n" + daily_files_paths_list[i] + "\n" + daily_files_paths_list[i + delay_days])
             continue
+
+
+
+
 
         if company_value_sign > 0:
             ascend_count += 1
@@ -142,8 +183,10 @@ def build_count_dict_from_daily_files(number_of_counted_days, daily_files_paths_
             advanced_utils.add_day_to_counter_dict(volume_filtered_delayed_dataframe,
                                                    company_value_sign, col_name,
                                                    updated_daily_dict_counter, ascend_or_descend, sign_or_value)
-        if company_symbol == 'SRNE':
+
+        if company_symbol == 'SRNE' and ascend_or_descend == 'ascend':
             print("####################################")
+            print(sign_or_value)
             print("focus day :", daily_files_paths_list[i])
             print("delayed day: ", daily_files_paths_list[i + delay_days])
             print("updated points to TOPS: ", updated_daily_dict_counter['TOPS'])
@@ -152,6 +195,18 @@ def build_count_dict_from_daily_files(number_of_counted_days, daily_files_paths_
             print("current ascend_count for SRNE: {}".format(ascend_count))
 
             print("####################################")
+
+        elif company_symbol == 'SQQQ' and ascend_or_descend == 'descend':
+            print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+            print(sign_or_value)
+            print("focus day :", daily_files_paths_list[i])
+            print("delayed day: ", daily_files_paths_list[i + delay_days])
+            print("updated points to GNUS: ", updated_daily_dict_counter['GNUS'])
+            print("percent-change for SQQQ: ", today_dataframe[today_dataframe['Symbol'] == 'SQQQ']['Percent-Change'].tolist()[0])
+            print("percent-change for GNUS: ", delayed_daily_dataframe[delayed_daily_dataframe['Symbol'] == 'GNUS']['Percent-Change'].tolist()[0])
+            print("current descend_count for SQQQ: {}".format(descend_count))
+
+            print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
 
     return updated_daily_dict_counter, ascend_count, descend_count
 
@@ -269,6 +324,8 @@ def selected_companies_percent_connection_strength_dict(market_name, company_sym
     return normalized_dict_counter
 
 """
+
+
 def build_companies_squared_dataframe(symbols_list, splitted_list_of_symbols,
                                       column_name, market_name, delay_days,
                                       volume_percent_filter, ascend_or_descend='ascend', sign_or_value='sign'):
@@ -339,7 +396,9 @@ def create_points_dataframe(market_name, delay_days,
                                           column_name, market_name, delay_days,
                                           volume_percent_filter, ascend_or_descend, sign_or_value)
 
-    file_path = path_finding_functions.set_points_file_path(market_name + "_" + ascend_or_descend + "_" + sign_or_value)
+    file_path = path_finding_functions.\
+        set_points_file_path(market_name + "_" + ascend_or_descend + "_"
+                             + sign_or_value + "_" + "delay" + str(delay_days))
     writer = pd.ExcelWriter(file_path, engine='xlsxwriter')
     companies_squared_dataframe.to_excel(writer)
     writer.save()

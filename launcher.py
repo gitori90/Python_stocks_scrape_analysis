@@ -72,9 +72,11 @@ print(testdict2)"""
 #print(inspect.getframeinfo(inspect.currentframe()).lineno)
 
 
-backend_API.StocksSectionAdvanced().create_ascending_points_dataframe('nasdaq', 1, 20)
-#backend_API.StocksSectionAdvanced().create_descending_points_dataframe('nasdaq', 1, 20)
+backend_API.StocksSectionAdvanced().create_ascending_points_dataframe('nasdaq', 1, 20, 'sign')
+backend_API.StocksSectionAdvanced().create_descending_points_dataframe('nasdaq', 1, 20, 'sign')
 
+backend_API.StocksSectionAdvanced().create_ascending_points_dataframe('nasdaq', 1, 20, 'value')
+backend_API.StocksSectionAdvanced().create_descending_points_dataframe('nasdaq', 1, 20, 'value')
 
 # EXECUTE TO SCRAPE ALL DAILY DATA:
 
@@ -82,7 +84,7 @@ backend_API.StocksSectionAdvanced().create_ascending_points_dataframe('nasdaq', 
     top_x_companies_by_column_with_specific_word_dataframe('corp',
                                                            'Percent-Change', 20, 'bottom')
 
-print(dataframe_of_top_by_column)"""
-
+print(dataframe_of_top_by_column)
+"""
 
 

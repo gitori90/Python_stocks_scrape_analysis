@@ -186,3 +186,4 @@ def splitted_symbols_list(symbols_list, number_of_sublists):
         i += numb_in_each_sublist
 
     return splitted_list
+
