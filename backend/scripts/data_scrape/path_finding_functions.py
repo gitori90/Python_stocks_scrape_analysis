@@ -11,6 +11,15 @@ def set_points_file_path(title):
     return file_path
 
 
+def get_points_file_path(exchange_name, ascend_or_descend, sign_or_value,delay_days):
+    path_string = r"backend\project_files\analysis_results\companies_points_"\
+                  + exchange_name + "_" + ascend_or_descend + "_" + sign_or_value +\
+                  "_" + "delay" + str(delay_days) + "*.xlsx"
+    requested_points_dataframe_file_path = \
+        glob.glob(path_string)[-1]
+    return requested_points_dataframe_file_path
+
+
 def set_daily_data_file_path(title):
     today = str(datetime.date.today())
     file_path = r"backend\project_files" + r"\daily_data_excels_" + title + r"\{}".format(title) + today + ".xlsx"

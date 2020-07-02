@@ -8,6 +8,7 @@ import re
 from backend import stocks_backend_API as backend_API
 import backend.scripts.analysis.advanced_analysis as advanced_analysis
 import backend.scripts.data_scrape.path_finding_functions as path_finding_functions
+import backend.scripts.market_operations.daily_market_operations as daily_operations
 
 import threading
 import concurrent.futures
@@ -72,11 +73,11 @@ print(testdict2)"""
 #print(inspect.getframeinfo(inspect.currentframe()).lineno)
 
 
-backend_API.StocksSectionAdvanced().create_ascending_points_dataframe('nasdaq', 1, 20, 'sign')
+"""backend_API.StocksSectionAdvanced().create_ascending_points_dataframe('nasdaq', 1, 20, 'sign')
 backend_API.StocksSectionAdvanced().create_descending_points_dataframe('nasdaq', 1, 20, 'sign')
 
 backend_API.StocksSectionAdvanced().create_ascending_points_dataframe('nasdaq', 1, 20, 'value')
-backend_API.StocksSectionAdvanced().create_descending_points_dataframe('nasdaq', 1, 20, 'value')
+backend_API.StocksSectionAdvanced().create_descending_points_dataframe('nasdaq', 1, 20, 'value')"""
 
 # EXECUTE TO SCRAPE ALL DAILY DATA:
 
@@ -86,5 +87,7 @@ backend_API.StocksSectionAdvanced().create_descending_points_dataframe('nasdaq',
 
 print(dataframe_of_top_by_column)
 """
+
+daily_operations.top_stocks_today('nasdaq', 1)
 
 

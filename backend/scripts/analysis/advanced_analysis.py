@@ -265,67 +265,6 @@ def companies_influenced_by_selected_company_dict(args_list):
     return result_dict
 
 
-"""
-# for API:
-# variable 'related_companies_list' is (should be) a list of companies
-# extracted from the dictionary returned by top_x_influenced_by_selected_company_dict
-def selected_companies_percent_connection_strength_dict(market_name, company_symbol, related_companies_list,
-                                                        delay_days, col_name, tendency='ascend'):
-
-    daily_files_paths_list = path_finding_functions.get_all_daily_files_paths_in_specific_market(market_name)
-    number_of_files = len(daily_files_paths_list)
-    number_of_counted_days = number_of_files - delay_days
-
-    delayed_companies_selected_values_dict = {company: 0 for company in related_companies_list}
-
-    # run over each daily file, exclude those that have no correspondent delayed daily file:
-    ascend_count = 0
-    descent_count = 0
-    for i in range(number_of_counted_days):
-        today_dataframe = stocks_analysis.all_companies_data_frame(daily_files_paths_list[i])
-
-        focused_company_selected_value = \
-            advanced_utils.get_company_selected_column_value(today_dataframe, company_symbol, col_name)
-        try:
-            focused_company_value_sign = focused_company_selected_value / abs(focused_company_selected_value)
-        except ZeroDivisionError:
-            print("focused_company_selected_value = 0 for: ", company_symbol)
-            continue
-
-        if focused_company_value_sign > 0:
-            ascend_count += 1
-        elif focused_company_value_sign < 0:
-            descent_count += 1
-
-        delayed_daily_dataframe = \
-            stocks_analysis.all_companies_data_frame(daily_files_paths_list[i + delay_days])
-
-        # run over the related companies and get its relative change
-        # (compared to the company in the focus) and add to the dict:
-        for company_symbol in related_companies_list:
-            related_selected_value = \
-                advanced_utils.get_company_selected_column_value(delayed_daily_dataframe, company_symbol, col_name)
-            try:
-                related_company_value_sign = related_selected_value / abs(related_selected_value)
-            except ZeroDivisionError:
-                continue
-
-            if ((tendency == 'ascend' and focused_company_value_sign == related_company_value_sign > 0)
-                or (tendency == 'descent' and focused_company_value_sign == related_company_value_sign < 0)):
-
-                relative_value = related_selected_value / focused_company_selected_value
-
-                delayed_companies_selected_values_dict[company_symbol] += relative_value
-
-    normalized_dict_counter = \
-        advanced_utils.normalize_daily_dict_counter(tendency, delayed_companies_selected_values_dict,
-                                                    ascend_count, descent_count, number_of_counted_days)
-
-    return normalized_dict_counter
-
-"""
-
-
 def build_companies_squared_dataframe(symbols_list, splitted_list_of_symbols,
                                       column_name, market_name, delay_days,
                                       volume_percent_filter, ascend_or_descend='ascend', sign_or_value='sign'):
