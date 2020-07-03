@@ -85,8 +85,8 @@ backend_API.StocksSectionAdvanced().create_descending_points_dataframe('nasdaq',
     top_x_companies_by_column_with_specific_word_dataframe('corp',
                                                            'Percent-Change', 20, 'bottom')
 
-print(dataframe_of_top_by_column)
-"""
+print(dataframe_of_top_by_column)"""
+
 
 daily_operations.top_stocks_today('nasdaq', 1)
 
