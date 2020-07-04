@@ -68,8 +68,6 @@ def company_points_giving_by_filter(requested_points_dataframe, bl_filtered_poin
     updated_requested_points_dataframe = pd.DataFrame(data=updated_requested_points_dict)
 
     return updated_requested_points_dataframe, giving_companies_pass_filter
-    #return requested_points_dataframe
-
 
 
 def assign_today_points(exchange_dataframe_today, exchange_name, delay_days,
@@ -124,32 +122,33 @@ def assign_today_points(exchange_dataframe_today, exchange_name, delay_days,
     return requested_points_dataframe, giving_companies_pass_filter_total_list
 
 
-def create_sign_and_value_top_companies_dataframes():
-
-
-def top_stocks_today(exchange_name, delay_days, sign_percent_filter=0.8, top_companies_number=10):
-    exchange_dataframe_today = stocks_API.AllDataAnalysisToday(exchange_name).all_daily_dataframe
-    exchange_dataframe_today_filtered = remove_companies_black_list_from_dataframe(exchange_dataframe_today)
-    exchange_dataframe_today_filtered = exchange_dataframe_today_filtered.set_index('Symbol')
-
+def create_sign_and_value_top_companies_dataframes(exchange_dataframe_today_filtered, exchange_name,
+                                                   delay_days, ascend_or_descend, sign_percent_filter,
+                                                   top_companies_number):
     today_points_ascend_sign_dataframe, giving_companies_pass_filter = \
         assign_today_points(exchange_dataframe_today_filtered, exchange_name, delay_days,
-                                                 'Percent-Change', 'ascend', 'sign', sign_percent_filter)
+                            'Percent-Change', ascend_or_descend, 'sign', sign_percent_filter)
 
-    # that dataframe should be saved in its own xlsx file:
     today_points_ascend_sign_dataframe.sort_values(by=['points'], ascending=False, inplace=True)
 
-    # thats for later use:
     top_chance_companies_symbols = today_points_ascend_sign_dataframe.head(top_companies_number).index
-
-
 
     today_points_ascend_value_dataframe, null_list = \
         assign_today_points(exchange_dataframe_today_filtered, exchange_name, delay_days,
-                            'Percent-Change', 'ascend', 'value', sign_percent_filter, giving_companies_pass_filter)
+                            'Percent-Change', ascend_or_descend, 'value', sign_percent_filter, giving_companies_pass_filter)
 
     today_points_ascend_value_dataframe.sort_values(by=['points'], ascending=False, inplace=True)
 
+    return today_points_ascend_sign_dataframe, today_points_ascend_value_dataframe, top_chance_companies_symbols
+
+
+def top_chance_power_dataframe_today(exchange_dataframe_today_filtered, exchange_name,
+                                     delay_days, ascend_or_descend, sign_percent_filter, top_companies_number):
+
+    today_points_ascend_sign_dataframe, today_points_ascend_value_dataframe, top_chance_companies_symbols = \
+        create_sign_and_value_top_companies_dataframes(exchange_dataframe_today_filtered, exchange_name,
+                                                       delay_days, ascend_or_descend, sign_percent_filter,
+                                                       top_companies_number)
 
     probability_col = []
     growth_value_col = []
@@ -159,19 +158,49 @@ def top_stocks_today(exchange_name, delay_days, sign_percent_filter=0.8, top_com
         number_of_voting_companies = today_points_ascend_sign_dataframe.at[symbol_in_tops, 'companies_count']
         expected_growth_percent = today_points_ascend_value_dataframe.at[symbol_in_tops, 'points']
 
-        probability_col.append(sum_probability/number_of_voting_companies)
+        probability_col.append(sum_probability / number_of_voting_companies)
         companies_voting_number_col.append(number_of_voting_companies)
-        growth_value_col.append(expected_growth_percent/number_of_voting_companies)
+        growth_value_col.append(expected_growth_percent / number_of_voting_companies)
+
+    if ascend_or_descend == 'descend':
+        growth_or_shrink = 'Shrink'
+    else:
+        growth_or_shrink = 'Growth'
 
     top_chance_power_dataframe = pd.DataFrame(data=
                                               {'Symbol': top_chance_companies_symbols,
-                                               'Mean-Growth-Probability(%)': probability_col,
-                                               'Mean-Expected-Growth(%)': growth_value_col,
+                                               'Mean-' + growth_or_shrink + '-Probability(%)': probability_col,
+                                               'Mean-Expected-' + growth_or_shrink + '(%)': growth_value_col,
                                                '# Voting-Companies': companies_voting_number_col})
 
-    top_chance_power_dataframe.sort_values(by=['Growth-Probability'], ascending=False, inplace=True)
-    print(top_chance_power_dataframe)
+    top_chance_power_dataframe.sort_values(by=['Mean-' + growth_or_shrink + '-Probability(%)'],
+                                           ascending=False, inplace=True)
 
+    return top_chance_power_dataframe
+
+
+def write_top_dataframes_today_to_excel(top_chance_power_dataframe_ascend, top_chance_power_dataframe_descend):
+    file_path = path_finding_functions.set_operations_file_path()
+    writer = pd.ExcelWriter(file_path, engine='xlsxwriter')
+    top_chance_power_dataframe_ascend.to_excel(writer, sheet_name='Growth')
+    top_chance_power_dataframe_descend.to_excel(writer, sheet_name='Shrink')
+    writer.save()
+
+
+def top_stocks_today(exchange_name, delay_days, sign_percent_filter=0.8, top_companies_number=10):
+    exchange_dataframe_today = stocks_API.AllDataAnalysisToday(exchange_name).all_daily_dataframe
+    exchange_dataframe_today_filtered = remove_companies_black_list_from_dataframe(exchange_dataframe_today)
+    exchange_dataframe_today_filtered = exchange_dataframe_today_filtered.set_index('Symbol')
+
+    top_chance_power_dataframe_ascend = \
+        top_chance_power_dataframe_today(exchange_dataframe_today_filtered, exchange_name,
+                                         delay_days, 'ascend', sign_percent_filter, top_companies_number)
+
+    top_chance_power_dataframe_descend = \
+        top_chance_power_dataframe_today(exchange_dataframe_today_filtered, exchange_name,
+                                         delay_days, 'descend', sign_percent_filter, top_companies_number)
+
+    write_top_dataframes_today_to_excel(top_chance_power_dataframe_ascend, top_chance_power_dataframe_descend)
 
 
 # ['VTIQW', 'VTIQ', 'NIU', 'FMB', 'NEBU', 'VTIQU', 'TUES', 'CSFL', 'BCLI', 'VRIG']

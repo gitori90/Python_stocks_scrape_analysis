@@ -4,9 +4,15 @@ import requests
 from bs4 import BeautifulSoup
 
 
+def set_operations_file_path():
+    today = str(datetime.date.today())
+    file_path = r"backend\project_files\daily_predictions" + r"/predictions_" + today + ".xlsx"
+    return file_path
+
+
 def set_points_file_path(title):
     today = str(datetime.date.today())
-    file_path = r"backend\project_files" + r"\analysis_results" \
+    file_path = r"backend\project_files\analysis_results" \
                 + r"\companies_points_" + title + "_" + today + ".xlsx"
     return file_path
 
