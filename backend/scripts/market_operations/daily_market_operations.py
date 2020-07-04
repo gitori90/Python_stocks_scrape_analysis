@@ -29,25 +29,36 @@ def get_filtered_selected_points_dataframe(exchange_name, ascend_or_descend, sig
 
 
 
-def company_points_giving_by_filter(requested_points_dataframe, filtered_points_dataframe,
-                                    all_symbols_list, company_symbol, percent_filter=0.8):
+def company_points_giving_by_filter(requested_points_dataframe, bl_filtered_points_dataframe,
+                                    all_symbols_list, company_symbol, percent_filter=0.8, today_company_value=0):
     # pd.at[] doesnt work here, so i had to take the dataframe apart and recreate it at the end.
     requested_points_dataframe_symbols = list(requested_points_dataframe)
     requested_points_dataframe_points = requested_points_dataframe.iloc[0].tolist()
     requested_points_dataframe_count = requested_points_dataframe.iloc[1].tolist()
 
-    company_points_giving_serie = filtered_points_dataframe.loc[[company_symbol]]
+    giving_companies_pass_filter = []
+
+    company_points_giving_serie = bl_filtered_points_dataframe.loc[[company_symbol]]
     for symbol_runner in all_symbols_list:
         # ALL THE DIFFERENCE BETWEEN THE CHANCE POINTS AND THE VALUE POINTS IS HERE!
-        # TO CALCULATE THE POINTS FOR THE VALUE CASE, TAKE THE POINTS VAR CREATED JUST BELOW
-        # AND MULTIPLY IT BY TODAY'S PERCENT-CHANGE VALUE OF 1 OF THE COMPANIES (decide tomorrow which of them)
-        # THEN ADD THAT TO THE 'requested_points_dataframe_points'
+
         points = company_points_giving_serie.at[company_symbol, symbol_runner]
+        if today_company_value > 0:  # this occurs only when i plug in a different value for it
+                                     # in the if statement of the value/sign.
+            points *= today_company_value
+
+
         if points >= percent_filter:
             index = requested_points_dataframe_symbols.index(symbol_runner)
 
             requested_points_dataframe_points[index] += points
             requested_points_dataframe_count[index] += 1
+
+            if today_company_value == 0:  # THIS IS BUILT DURING THE SIGN POINTS GIVING,
+                                          # AND SHOULD BE RETURNED AT THE END OF THE FUNCTION.
+                                          # AT THE VALUE ASSIGNMENTS, PASS THIS RETURNED LIST IN
+                                          # AS 'all_symbols_list'
+                giving_companies_pass_filter.append(symbol_runner)
 
     updated_requested_points_dict = \
         {requested_points_dataframe_symbols[i]: [requested_points_dataframe_points[i],
@@ -56,20 +67,25 @@ def company_points_giving_by_filter(requested_points_dataframe, filtered_points_
 
     updated_requested_points_dataframe = pd.DataFrame(data=updated_requested_points_dict)
 
-    return updated_requested_points_dataframe
+    return updated_requested_points_dataframe, giving_companies_pass_filter
     #return requested_points_dataframe
 
 
 
 def assign_today_points(exchange_dataframe_today, exchange_name, delay_days,
-                        col_name, ascend_or_descend, sign_or_value, percent_filter=0.8):
-    filtered_points_dataframe = \
+                        col_name, ascend_or_descend, sign_or_value, percent_filter=0.8,
+                        values_filtered_symbols_list=['nan']):
+    bl_filtered_points_dataframe = \
         get_filtered_selected_points_dataframe(exchange_name, ascend_or_descend, sign_or_value, delay_days)
 
-    all_symbols_list = list(filtered_points_dataframe)
+    if sign_or_value == 'value':
+        all_symbols_list = values_filtered_symbols_list
+    elif sign_or_value == 'sign':
+        all_symbols_list = list(bl_filtered_points_dataframe)
 
     init_dict_for_dataframe = {symbol: [0, 0] for symbol in all_symbols_list}
     requested_points_dataframe = pd.DataFrame(data=init_dict_for_dataframe)
+    giving_companies_pass_filter_total_list = []
 
     for symbol in all_symbols_list:
         # make sure the indexes are indeed the symbols
@@ -81,16 +97,17 @@ def assign_today_points(exchange_dataframe_today, exchange_name, delay_days,
                 or (today_company_sign < 0 and ascend_or_descend == 'descend')):
 
                 if sign_or_value == 'sign':
-                    requested_points_dataframe = \
+                    requested_points_dataframe, giving_companies_pass_filter = \
                         company_points_giving_by_filter(requested_points_dataframe,
-                                                        filtered_points_dataframe,
+                                                        bl_filtered_points_dataframe,
                                                         all_symbols_list, symbol, percent_filter)
+                    giving_companies_pass_filter_total_list.extend(giving_companies_pass_filter)
 
                 elif sign_or_value == 'value':
-                    requested_points_dataframe = \
+                    requested_points_dataframe, giving_companies_pass_filter = \
                         company_points_giving_by_filter(requested_points_dataframe,
-                                                        filtered_points_dataframe,
-                                                        all_symbols_list, symbol, 0)
+                                                        bl_filtered_points_dataframe,
+                                                        all_symbols_list, symbol, 0, today_company_value)
 
                 else:
                     print("Error input sign_or_value: ", sign_or_value)
@@ -102,8 +119,12 @@ def assign_today_points(exchange_dataframe_today, exchange_name, delay_days,
         except ZeroDivisionError:
             continue
 
+    giving_companies_pass_filter_total_list = list(set(giving_companies_pass_filter_total_list))
     requested_points_dataframe = requested_points_dataframe.rename(index={0: 'points', 1: 'companies_count'}).T
-    return requested_points_dataframe
+    return requested_points_dataframe, giving_companies_pass_filter_total_list
+
+
+def create_sign_and_value_top_companies_dataframes():
 
 
 def top_stocks_today(exchange_name, delay_days, sign_percent_filter=0.8, top_companies_number=10):
@@ -111,7 +132,8 @@ def top_stocks_today(exchange_name, delay_days, sign_percent_filter=0.8, top_com
     exchange_dataframe_today_filtered = remove_companies_black_list_from_dataframe(exchange_dataframe_today)
     exchange_dataframe_today_filtered = exchange_dataframe_today_filtered.set_index('Symbol')
 
-    today_points_ascend_sign_dataframe = assign_today_points(exchange_dataframe_today_filtered, exchange_name, delay_days,
+    today_points_ascend_sign_dataframe, giving_companies_pass_filter = \
+        assign_today_points(exchange_dataframe_today_filtered, exchange_name, delay_days,
                                                  'Percent-Change', 'ascend', 'sign', sign_percent_filter)
 
     # that dataframe should be saved in its own xlsx file:
@@ -122,11 +144,33 @@ def top_stocks_today(exchange_name, delay_days, sign_percent_filter=0.8, top_com
 
 
 
-    today_points_ascend_value_dataframe = \
+    today_points_ascend_value_dataframe, null_list = \
         assign_today_points(exchange_dataframe_today_filtered, exchange_name, delay_days,
-                            'Percent-Change', 'ascend', 'value', sign_percent_filter)
+                            'Percent-Change', 'ascend', 'value', sign_percent_filter, giving_companies_pass_filter)
 
-    print(today_points_ascend_value_dataframe)
+    today_points_ascend_value_dataframe.sort_values(by=['points'], ascending=False, inplace=True)
+
+
+    probability_col = []
+    growth_value_col = []
+    companies_voting_number_col = []
+    for symbol_in_tops in top_chance_companies_symbols:
+        sum_probability = today_points_ascend_sign_dataframe.at[symbol_in_tops, 'points']
+        number_of_voting_companies = today_points_ascend_sign_dataframe.at[symbol_in_tops, 'companies_count']
+        expected_growth_percent = today_points_ascend_value_dataframe.at[symbol_in_tops, 'points']
+
+        probability_col.append(sum_probability/number_of_voting_companies)
+        companies_voting_number_col.append(number_of_voting_companies)
+        growth_value_col.append(expected_growth_percent/number_of_voting_companies)
+
+    top_chance_power_dataframe = pd.DataFrame(data=
+                                              {'Symbol': top_chance_companies_symbols,
+                                               'Mean-Growth-Probability(%)': probability_col,
+                                               'Mean-Expected-Growth(%)': growth_value_col,
+                                               '# Voting-Companies': companies_voting_number_col})
+
+    top_chance_power_dataframe.sort_values(by=['Growth-Probability'], ascending=False, inplace=True)
+    print(top_chance_power_dataframe)
 
 
 
