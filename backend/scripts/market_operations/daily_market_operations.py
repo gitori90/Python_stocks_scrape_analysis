@@ -5,14 +5,8 @@ import backend.scripts.data_scrape.path_finding_functions as path_finding_functi
 import backend.scripts.analysis.advanced_utils as advanced_utils
 import statistics
 
-COMPANIES_BLACK_LIST = ['TRNX']
 
 
-def remove_companies_black_list_from_dataframe(dataframe):
-    for company_symbol in COMPANIES_BLACK_LIST:
-        dataframe = dataframe[dataframe['Symbol'] != company_symbol]
-
-    return dataframe
 
 
 # filtered by COMPANIES_BLACK_LIST
@@ -22,8 +16,8 @@ def get_filtered_selected_points_dataframe(exchange_name, ascend_or_descend, sig
     points_dataframe = pd.read_excel(points_dataframe_file_path)
     points_dataframe = points_dataframe.set_index('Unnamed: 0')
 
-    filtered_points_dataframe = points_dataframe.drop(columns=COMPANIES_BLACK_LIST,
-                                                      index=COMPANIES_BLACK_LIST,
+    filtered_points_dataframe = points_dataframe.drop(columns=advanced_utils.COMPANIES_BLACK_LIST,
+                                                      index=advanced_utils.COMPANIES_BLACK_LIST,
                                                       errors='ignore')
     return filtered_points_dataframe
 
@@ -189,7 +183,8 @@ def write_top_dataframes_today_to_excel(top_chance_power_dataframe_ascend, top_c
 
 def top_stocks_today(exchange_name, delay_days, sign_percent_filter=0.8, top_companies_number=10):
     exchange_dataframe_today = stocks_API.AllDataAnalysisToday(exchange_name).all_daily_dataframe
-    exchange_dataframe_today_filtered = remove_companies_black_list_from_dataframe(exchange_dataframe_today)
+    exchange_dataframe_today_filtered = \
+        advanced_utils.remove_companies_black_list_from_dataframe(exchange_dataframe_today)
     exchange_dataframe_today_filtered = exchange_dataframe_today_filtered.set_index('Symbol')
 
     top_chance_power_dataframe_ascend = \
@@ -201,7 +196,4 @@ def top_stocks_today(exchange_name, delay_days, sign_percent_filter=0.8, top_com
                                          delay_days, 'descend', sign_percent_filter, top_companies_number)
 
     write_top_dataframes_today_to_excel(top_chance_power_dataframe_ascend, top_chance_power_dataframe_descend)
-
-
-# ['VTIQW', 'VTIQ', 'NIU', 'FMB', 'NEBU', 'VTIQU', 'TUES', 'CSFL', 'BCLI', 'VRIG']
 

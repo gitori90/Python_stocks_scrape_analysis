@@ -92,8 +92,7 @@ def analyse_method_on_all_dataframes_partial_name(partial_name, method_name, col
 
 # when the print is no more needed - REMOVE the last 3 inputs:
 def check_equal_days_values(today_dataframe, delayed_daily_dataframe, col_name,
-                            next_company_values, previous_company_values,
-                            company_symbol, daily_files_paths_list, i):
+                            next_company_values, previous_company_values):
 
     # check if the focused day and the delayed day contain the exact same data (if so - skip):
     day1_col = today_dataframe[col_name]
@@ -106,9 +105,6 @@ def check_equal_days_values(today_dataframe, delayed_daily_dataframe, col_name,
     # (aka no change at all -> skip):
     check_value_equals = next_company_values.equals(previous_company_values)
     if check_value_equals is True:
-        print(company_symbol + " values null change between:")
-        print(daily_files_paths_list[i - 1])
-        print(daily_files_paths_list[i])
         return True
 
     return False
@@ -126,7 +122,11 @@ def build_count_dict_from_daily_files(number_of_counted_days, daily_files_paths_
 
     # run over each daily file, focusing on a specific company (company_symbol):
     for i in range(number_of_counted_days):
+
+        # focused_day_dataframe
         today_dataframe = stocks_analysis.all_companies_data_frame(daily_files_paths_list[i])
+        today_dataframe = advanced_utils.remove_companies_black_list_from_dataframe(today_dataframe)
+
         volume_filtered_dataframe = advanced_utils.\
             volume_filtered_market_dataframe(today_dataframe, volume_percent_filter_to_remove)
 
@@ -145,25 +145,16 @@ def build_count_dict_from_daily_files(number_of_counted_days, daily_files_paths_
 
         delayed_daily_dataframe = \
             stocks_analysis.all_companies_data_frame(daily_files_paths_list[i + delay_days])
+        delayed_daily_dataframe = advanced_utils.remove_companies_black_list_from_dataframe(delayed_daily_dataframe)
 
         next_company_values = volume_filtered_dataframe[volume_filtered_dataframe['Symbol'] == company_symbol]
 
-
-
-
-        # when the print is no more needed - REMOVE the LAST 3 inputs:
         check_equals = check_equal_days_values(today_dataframe, delayed_daily_dataframe,
-                                               col_name, next_company_values, previous_company_values,
-                                               company_symbol, daily_files_paths_list, i)
-
+                                               col_name, next_company_values, previous_company_values)
 
         previous_company_values = next_company_values
         if check_equals is True:
             continue
-
-
-
-
 
         if company_value_sign > 0:
             ascend_count += 1

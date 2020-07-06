@@ -9,6 +9,16 @@ import re
 import inspect
 
 
+COMPANIES_BLACK_LIST = ['TRNX', 'VTIQW', 'VTIQ', 'VTIQU', 'TUES']
+
+
+def remove_companies_black_list_from_dataframe(dataframe, black_list=COMPANIES_BLACK_LIST):
+    for company_symbol in black_list:
+        dataframe = dataframe[dataframe['Symbol'] != company_symbol]
+
+    return dataframe
+
+
 def create_daily_dict(symbols_list, column_values_list, sign_or_value):
     today_signs_dict = {}
     for i in range(len(symbols_list)):

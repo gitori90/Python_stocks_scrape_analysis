@@ -88,6 +88,7 @@ backend_API.StocksSectionAdvanced().create_descending_points_dataframe('nasdaq',
 print(dataframe_of_top_by_column)"""
 
 
-daily_operations.top_stocks_today('nasdaq', 1)
+#daily_operations.top_stocks_today('nasdaq', 1)
 
+backend_API.StocksSectionBasic().create_symbols_file('nasdaq')
 
