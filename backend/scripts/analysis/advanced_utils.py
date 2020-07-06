@@ -9,7 +9,7 @@ import re
 import inspect
 
 
-COMPANIES_BLACK_LIST = ['TRNX', 'VTIQW', 'VTIQ', 'VTIQU', 'TUES']
+COMPANIES_BLACK_LIST = ['TRNX', 'VTIQW', 'VTIQ', 'VTIQU', 'TUES', 'NEBU', 'CSFL']
 
 
 def remove_companies_black_list_from_dataframe(dataframe, black_list=COMPANIES_BLACK_LIST):
