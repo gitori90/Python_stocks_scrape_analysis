@@ -19,8 +19,6 @@ import inspect
 
 
 
-
-
 """def printer(something):
 
 
@@ -70,30 +68,31 @@ print(testdict2)"""
 
 
 
-
-#print(inspect.getframeinfo(inspect.currentframe()).lineno)
-
+# UPDATE POINTS DATAFRAME!!:
 market_name = 'nasdaq'
 delay_days = 1
 volume_percent_filter = 20
 number_of_iterations = 2
 sign_or_value = 'sign'
 backend_API.StocksSectionAdvanced().\
+    create_ascending_points_dataframe(market_name, delay_days,
+                                      volume_percent_filter, number_of_iterations,
+                                      sign_or_value)
+"""backend_API.StocksSectionAdvanced().\
     create_descending_points_dataframe(market_name, delay_days,
                                       volume_percent_filter, number_of_iterations,
                                       sign_or_value)
 
 sign_or_value = 'value'
 backend_API.StocksSectionAdvanced().\
-    create_descending_points_dataframe(market_name, delay_days,
+    create_ascending_points_dataframe(market_name, delay_days,
                                       volume_percent_filter, number_of_iterations,
                                       sign_or_value)
+backend_API.StocksSectionAdvanced().\
+    create_descending_points_dataframe(market_name, delay_days,
+                                      volume_percent_filter, number_of_iterations,
+                                      sign_or_value)"""
 
-
-"""backend_API.StocksSectionAdvanced().create_descending_points_dataframe('nasdaq', 1, 20, 'sign')
-
-backend_API.StocksSectionAdvanced().create_ascending_points_dataframe('nasdaq', 1, 20, 'value')
-backend_API.StocksSectionAdvanced().create_descending_points_dataframe('nasdaq', 1, 20, 'value')"""
 
 # EXECUTE TO SCRAPE ALL DAILY DATA:
 
@@ -104,7 +103,7 @@ backend_API.StocksSectionAdvanced().create_descending_points_dataframe('nasdaq',
 print(dataframe_of_top_by_column)"""
 
 
-#daily_operations.top_stocks_today('nasdaq', 1)
+#daily_operations.top_stocks_today('nasdaq', 1, 15)
 
 #backend_API.StocksSectionBasic().create_symbols_file('nasdaq')
 

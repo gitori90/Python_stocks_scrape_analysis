@@ -4,9 +4,9 @@ import requests
 from bs4 import BeautifulSoup
 
 
-def get_exiled_companies_symbols_path(market_name):
-    file_path = r"backend\project_files\latest_exiled_symbols\\" + market_name + "_latest_exiled_symbols"
-    return file_path
+"""def get_exiled_companies_symbols_path(market_name):
+    file_path = r"backend\project_files\latest_exiled_symbols\\" + market_name + "_latest_exiled_symbols.txt"
+    return file_path"""
 
 
 def get_splitted_list_of_symbols_position_path(market_name, ascend_or_descend, sign_or_value, delay_days):

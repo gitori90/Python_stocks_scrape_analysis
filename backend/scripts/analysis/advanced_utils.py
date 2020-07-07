@@ -9,14 +9,56 @@ import re
 import inspect
 
 
-COMPANIES_BLACK_LIST = ['TRNX', 'VTIQW', 'VTIQ', 'VTIQU', 'TUES', 'NEBU', 'CSFL']
+"""COMPANIES_BLACK_LIST = ['TRNX', 'VTIQW', 'VTIQ', 'VTIQU', 'TUES', 'NEBU', 'CSFL']
 
 
-def remove_companies_black_list_from_dataframe(dataframe, black_list=COMPANIES_BLACK_LIST):
+def get_companies_black_list(market_name):
+
+    exiled_symbols_path = path_finding_functions.get_exiled_companies_symbols_path(market_name)
+    f = open(exiled_symbols_path, "r")
+    exiled_symbols_string = f.read()
+    exiled_symbols_list = exiled_symbols_string.split(",")
+    f.close()
+
+    return exiled_symbols_list
+
+
+def write_exiled_and_print_new_symbols(market_name, last_daily_dataframe, all_symbols_points_dataframe_list):
+
+    exiled_symbols_path = path_finding_functions.get_exiled_companies_symbols_path(market_name)
+
+    global COMPANIES_BLACK_LIST
+    new_symbols = []
+    exiled_symbols = []
+
+    today_symbols = last_daily_dataframe['Symbol'].tolist()
+
+    for symbol in all_symbols_points_dataframe_list:
+        if symbol not in today_symbols:
+            exiled_symbols.append(symbol)
+
+    COMPANIES_BLACK_LIST = exiled_symbols
+
+    for symbol in today_symbols:
+        if symbol not in all_symbols_points_dataframe_list:
+            new_symbols.append(symbol)
+
+    if len(exiled_symbols) > 0:
+        f = open(exiled_symbols_path, "w")
+        for symbol in exiled_symbols:
+            f.write(symbol + ",")
+        f.close()
+
+    if len(new_symbols) > 0:
+        print("New Symbols:")
+        print(new_symbols)
+
+"""
+"""def remove_companies_black_list_from_dataframe(dataframe, black_list=COMPANIES_BLACK_LIST):
     for company_symbol in black_list:
         dataframe = dataframe[dataframe['Symbol'] != company_symbol]
 
-    return dataframe
+    return dataframe"""
 
 
 def create_daily_dict(symbols_list, column_values_list, sign_or_value):
@@ -198,15 +240,29 @@ def splitted_symbols_list(symbols_list, number_of_sublists):
     return splitted_list
 
 
-# filtered by COMPANIES_BLACK_LIST
+# filtered by symbols that no longer exist in the market
 def get_filtered_selected_points_dataframe(exchange_name, ascend_or_descend, sign_or_value, delay_days):
+
     points_dataframe_file_path = path_finding_functions. \
         get_points_file_path(exchange_name, ascend_or_descend, sign_or_value, delay_days)
     points_dataframe = pd.read_excel(points_dataframe_file_path)
     points_dataframe = points_dataframe.set_index('Unnamed: 0')
 
-    filtered_points_dataframe = points_dataframe.drop(columns=COMPANIES_BLACK_LIST,
-                                                      index=COMPANIES_BLACK_LIST,
+    exchange_dataframe_today = stocks_API.AllDataAnalysisToday(exchange_name).all_daily_dataframe
+
+    all_symbols_today = exchange_dataframe_today['Symbol'].tolist()
+    all_symbols_in_points_dataframe = list(points_dataframe.columns)
+
+    exiled_symbols = [x for x in all_symbols_in_points_dataframe if x not in all_symbols_today]
+
+    # CHECK THE CREATING ZEROES POINTS DATAFRAME VS THE LOADING OF EXISTING ONE! THE LOADING EXISTING ONE MIGHT NOT
+    # INCLUDE NEW COMPANIES!!
+
+    # write_exiled_and_print_new_symbols(exchange_name, exchange_dataframe_today, list(points_dataframe.columns))
+
+
+    filtered_points_dataframe = points_dataframe.drop(columns=exiled_symbols,
+                                                      index=exiled_symbols,
                                                       errors='ignore')
     return filtered_points_dataframe
 
@@ -216,9 +272,14 @@ def get_and_increment_symbols_sublist_position(market_name, total_number_of_subl
                                                sign_or_value, delay_days):
     position_file_path = path_finding_functions.\
         get_splitted_list_of_symbols_position_path(market_name, ascend_or_descend, sign_or_value, delay_days)
-    f = open(position_file_path, "r")
-    position = int(f.read(1)) % total_number_of_sublists
-    f.close()
+
+    position = 0
+    try:
+        f = open(position_file_path, "r")
+        position = int(f.read()) % total_number_of_sublists
+        f.close()
+    except:
+        print("The position_file_path does not exist. Initializing one.")
 
     new_position = position + numb_to_increment
     new_position = new_position % total_number_of_sublists
@@ -230,20 +291,3 @@ def get_and_increment_symbols_sublist_position(market_name, total_number_of_subl
     return position
 
 
-def exiled_and_new_symbols(market_name, last_daily_dataframe, all_symbols_points_dataframe_list):
-    exiled_symbols_path = path_finding_functions.get_exiled_companies_symbols_path(market_name)
-
-    new_symbols = []
-    exiled_symbols = []
-
-    today_symbols = last_daily_dataframe['Symbol'].tolist()
-    for symbol in today_symbols:
-        if symbol not in all_symbols_points_dataframe_list:
-            exiled_symbols.append(symbol)
-
-    for symbol in all_symbols_points_dataframe_list:
-        if symbol not in today_symbols:
-            new_symbols.append(symbol)
-
-    print("New Symbols:")
-    print(new_symbols)

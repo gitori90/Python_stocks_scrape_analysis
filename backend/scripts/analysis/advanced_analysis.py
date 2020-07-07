@@ -125,7 +125,7 @@ def build_count_dict_from_daily_files(number_of_counted_days, daily_files_paths_
 
         # focused_day_dataframe
         today_dataframe = stocks_analysis.all_companies_data_frame(daily_files_paths_list[i])
-        today_dataframe = advanced_utils.remove_companies_black_list_from_dataframe(today_dataframe)
+        # today_dataframe = advanced_utils.remove_companies_black_list_from_dataframe(today_dataframe)
 
         volume_filtered_dataframe = advanced_utils.\
             volume_filtered_market_dataframe(today_dataframe, volume_percent_filter_to_remove)
@@ -145,7 +145,7 @@ def build_count_dict_from_daily_files(number_of_counted_days, daily_files_paths_
 
         delayed_daily_dataframe = \
             stocks_analysis.all_companies_data_frame(daily_files_paths_list[i + delay_days])
-        delayed_daily_dataframe = advanced_utils.remove_companies_black_list_from_dataframe(delayed_daily_dataframe)
+        # delayed_daily_dataframe = advanced_utils.remove_companies_black_list_from_dataframe(delayed_daily_dataframe)
 
         next_company_values = volume_filtered_dataframe[volume_filtered_dataframe['Symbol'] == company_symbol]
 
@@ -264,6 +264,7 @@ def build_companies_squared_dataframe(symbols_list, splitted_list_of_symbols,
     try:
         companies_squared_dataframe = advanced_utils. \
             get_filtered_selected_points_dataframe(market_name, ascend_or_descend, sign_or_value, delay_days)
+        # AND WHAT IF SOME SYMBOLS GOT REMOVED TODAY AND SOME WERE ADDED?
     except:
         print("Failed loading existing points_dataframe. Initializing a new one.")
         companies_squared_dataframe = advanced_utils.initiate_square_dataframe_zeros(symbols_list)
@@ -325,16 +326,20 @@ def build_companies_squared_dataframe(symbols_list, splitted_list_of_symbols,
                         companies_squared_dataframe.at[points_giving_company_symbol, symbol] = \
                             points_giving_company_dataframe.at[0, symbol]
                     except KeyError:
-                        pass
-        # this break is here so we can test things on 1 iteration instead of a ton of them.
-        # break
+                        points_dataframe_symbols_list = list(companies_squared_dataframe.index)
+                        if points_giving_company_symbol not in points_dataframe_symbols_list:
+                            missing_symbol = points_giving_company_symbol
+                        elif symbol not in points_dataframe_symbols_list:
+                            missing_symbol = symbol
+                        else:
+                            raise
+                        companies_squared_dataframe[missing_symbol] = 0  # this might cause an error
+                        companies_squared_dataframe.append(pandas.Series(name=missing_symbol))
+
+                        companies_squared_dataframe.at[points_giving_company_symbol, symbol] = \
+                            points_giving_company_dataframe.at[0, symbol]
 
     return companies_squared_dataframe
-
-
-
-#def load_last_points_file():
-
 
 
 def create_points_dataframe(market_name, delay_days,
@@ -343,13 +348,11 @@ def create_points_dataframe(market_name, delay_days,
 
     daily_files_paths_list = path_finding_functions.get_all_daily_files_paths_in_specific_market(market_name)
     advanced_utils.check_for_daily_gaps(daily_files_paths_list)
-    sample_daily_dataframe = stocks_analysis.all_companies_data_frame(daily_files_paths_list[0])
-    sample_daily_dataframe = advanced_utils.remove_companies_black_list_from_dataframe(sample_daily_dataframe)
+
+    sample_daily_dataframe = stocks_analysis.all_companies_data_frame(daily_files_paths_list[-1])
 
     initial_volume_filtered_dataframe = \
         advanced_utils.volume_filtered_market_dataframe(sample_daily_dataframe, volume_percent_filter)
-    initial_volume_filtered_dataframe = advanced_utils.\
-        remove_companies_black_list_from_dataframe(initial_volume_filtered_dataframe)
 
     symbols_list = initial_volume_filtered_dataframe['Symbol'].tolist()
 

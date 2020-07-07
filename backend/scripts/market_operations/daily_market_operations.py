@@ -6,7 +6,7 @@ import backend.scripts.analysis.advanced_utils as advanced_utils
 import statistics
 
 
-def company_points_giving_by_filter(requested_points_dataframe, bl_filtered_points_dataframe,
+def company_points_giving_by_filter(requested_points_dataframe, exiled_filtered_points_dataframe,
                                     all_symbols_list, company_symbol, percent_filter=0.8, today_company_value=0):
     # pd.at[] doesnt work here, so i had to take the dataframe apart and recreate it at the end.
     requested_points_dataframe_symbols = list(requested_points_dataframe)
@@ -15,7 +15,7 @@ def company_points_giving_by_filter(requested_points_dataframe, bl_filtered_poin
 
     giving_companies_pass_filter = []
 
-    company_points_giving_serie = bl_filtered_points_dataframe.loc[[company_symbol]]
+    company_points_giving_serie = exiled_filtered_points_dataframe.loc[[company_symbol]]
     for symbol_runner in all_symbols_list:
         # ALL THE DIFFERENCE BETWEEN THE CHANCE POINTS AND THE VALUE POINTS IS HERE!
 
@@ -50,13 +50,16 @@ def company_points_giving_by_filter(requested_points_dataframe, bl_filtered_poin
 def assign_today_points(exchange_dataframe_today, exchange_name, delay_days,
                         col_name, ascend_or_descend, sign_or_value, percent_filter=0.8,
                         values_filtered_symbols_list=['nan']):
-    bl_filtered_points_dataframe = \
+    exiled_filtered_points_dataframe = \
         advanced_utils.get_filtered_selected_points_dataframe(exchange_name, ascend_or_descend, sign_or_value, delay_days)
 
     if sign_or_value == 'value':
         all_symbols_list = values_filtered_symbols_list
+        # black_list = advanced_utils.get_companies_black_list(exchange_name)
+        # all_symbols_list = [x for x in all_symbols_list if x not in black_list]
+
     elif sign_or_value == 'sign':
-        all_symbols_list = list(bl_filtered_points_dataframe)
+        all_symbols_list = list(exiled_filtered_points_dataframe)
 
     init_dict_for_dataframe = {symbol: [0, 0] for symbol in all_symbols_list}
     requested_points_dataframe = pd.DataFrame(data=init_dict_for_dataframe)
@@ -64,6 +67,7 @@ def assign_today_points(exchange_dataframe_today, exchange_name, delay_days,
 
     for symbol in all_symbols_list:
         # make sure the indexes are indeed the symbols
+
         today_company_value = float(exchange_dataframe_today.at[symbol, col_name])
 
         try:
@@ -74,14 +78,14 @@ def assign_today_points(exchange_dataframe_today, exchange_name, delay_days,
                 if sign_or_value == 'sign':
                     requested_points_dataframe, giving_companies_pass_filter = \
                         company_points_giving_by_filter(requested_points_dataframe,
-                                                        bl_filtered_points_dataframe,
+                                                        exiled_filtered_points_dataframe,
                                                         all_symbols_list, symbol, percent_filter)
                     giving_companies_pass_filter_total_list.extend(giving_companies_pass_filter)
 
                 elif sign_or_value == 'value':
                     requested_points_dataframe, giving_companies_pass_filter = \
                         company_points_giving_by_filter(requested_points_dataframe,
-                                                        bl_filtered_points_dataframe,
+                                                        exiled_filtered_points_dataframe,
                                                         all_symbols_list, symbol, 0, today_company_value)
 
                 else:
@@ -112,7 +116,8 @@ def create_sign_and_value_top_companies_dataframes(exchange_dataframe_today_filt
 
     today_points_ascend_value_dataframe, null_list = \
         assign_today_points(exchange_dataframe_today_filtered, exchange_name, delay_days,
-                            'Percent-Change', ascend_or_descend, 'value', sign_percent_filter, giving_companies_pass_filter)
+                            'Percent-Change', ascend_or_descend, 'value', sign_percent_filter,
+                            giving_companies_pass_filter)
 
     today_points_ascend_value_dataframe.sort_values(by=['points'], ascending=False, inplace=True)
 
@@ -164,18 +169,19 @@ def write_top_dataframes_today_to_excel(top_chance_power_dataframe_ascend, top_c
     writer.save()
 
 
-def top_stocks_today(exchange_name, delay_days, sign_percent_filter=0.8, top_companies_number=10):
+def top_stocks_today(exchange_name, delay_days, top_companies_number=10, sign_percent_filter=0.8):
     exchange_dataframe_today = stocks_API.AllDataAnalysisToday(exchange_name).all_daily_dataframe
-    exchange_dataframe_today_filtered = \
-        advanced_utils.remove_companies_black_list_from_dataframe(exchange_dataframe_today)
-    exchange_dataframe_today_filtered = exchange_dataframe_today_filtered.set_index('Symbol')
+
+    """exchange_dataframe_today_filtered = \
+        advanced_utils.remove_companies_black_list_from_dataframe(exchange_dataframe_today)"""
+    exchange_dataframe_today = exchange_dataframe_today.set_index('Symbol')
 
     top_chance_power_dataframe_ascend = \
-        top_chance_power_dataframe_today(exchange_dataframe_today_filtered, exchange_name,
+        top_chance_power_dataframe_today(exchange_dataframe_today, exchange_name,
                                          delay_days, 'ascend', sign_percent_filter, top_companies_number)
 
     top_chance_power_dataframe_descend = \
-        top_chance_power_dataframe_today(exchange_dataframe_today_filtered, exchange_name,
+        top_chance_power_dataframe_today(exchange_dataframe_today, exchange_name,
                                          delay_days, 'descend', sign_percent_filter, top_companies_number)
 
     write_top_dataframes_today_to_excel(top_chance_power_dataframe_ascend, top_chance_power_dataframe_descend)
