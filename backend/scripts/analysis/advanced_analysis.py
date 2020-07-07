@@ -175,15 +175,15 @@ def build_count_dict_from_daily_files(number_of_counted_days, daily_files_paths_
                                                    company_value_sign, col_name,
                                                    updated_daily_dict_counter, ascend_or_descend, sign_or_value)
 
-        if company_symbol == 'SRNE' and ascend_or_descend == 'ascend':
+        if company_symbol == 'CSCO' and ascend_or_descend == 'ascend':
             print("####################################")
             print(sign_or_value)
             print("focus day :", daily_files_paths_list[i])
             print("delayed day: ", daily_files_paths_list[i + delay_days])
             print("updated points to TOPS: ", updated_daily_dict_counter['TOPS'])
-            print("percent-change for SRNE: ", today_dataframe[today_dataframe['Symbol'] == 'SRNE']['Percent-Change'].tolist()[0])
+            print("percent-change for CSCO: ", today_dataframe[today_dataframe['Symbol'] == 'CSCO']['Percent-Change'].tolist()[0])
             print("percent-change for TOPS: ", delayed_daily_dataframe[delayed_daily_dataframe['Symbol'] == 'TOPS']['Percent-Change'].tolist()[0])
-            print("current ascend_count for SRNE: {}".format(ascend_count))
+            print("current ascend_count for CSCO: {}".format(ascend_count))
 
             print("####################################")
 
@@ -258,13 +258,40 @@ def companies_influenced_by_selected_company_dict(args_list):
 
 def build_companies_squared_dataframe(symbols_list, splitted_list_of_symbols,
                                       column_name, market_name, delay_days,
-                                      volume_percent_filter, ascend_or_descend='ascend', sign_or_value='sign'):
+                                      volume_percent_filter, ascend_or_descend='ascend',
+                                      sign_or_value='sign', number_of_iterations=1):
 
-    companies_squared_dataframe = advanced_utils.initiate_square_dataframe_zeros(symbols_list)
+    try:
+        companies_squared_dataframe = advanced_utils. \
+            get_filtered_selected_points_dataframe(market_name, ascend_or_descend, sign_or_value, delay_days)
+    except:
+        print("Failed loading existing points_dataframe. Initializing a new one.")
+        companies_squared_dataframe = advanced_utils.initiate_square_dataframe_zeros(symbols_list)
+
+
+    # the updating position in splitted_list_of_symbols to be done here
+    current_position = advanced_utils.\
+        get_and_increment_symbols_sublist_position(market_name, NUMBER_OF_SUBLISTS,
+                                                   number_of_iterations, ascend_or_descend,
+                                                   sign_or_value, delay_days)
+
+    j = 0
     for partial_company_symbols_list in splitted_list_of_symbols:
+
+        # makes sure we start from the intended position and stop after the intended number of iterations
+        if j < current_position:
+            j += 1
+            continue
+        elif j >= current_position + number_of_iterations:
+            break
+        j += 1
+
         args_list = [[market_name, company_symbol, column_name, delay_days,
                       ascend_or_descend, volume_percent_filter, sign_or_value]
                      for company_symbol in partial_company_symbols_list]
+
+        print("Companies giving points now:")
+        print(partial_company_symbols_list)
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
             company_points_dataframe_dicts = executor.map(companies_influenced_by_selected_company_dict, args_list)
@@ -274,7 +301,7 @@ def build_companies_squared_dataframe(symbols_list, splitted_list_of_symbols,
                 for symbol in symbols_list:
                     try:
                         """
-                        that line (which executes after the comment):
+                        that line (which executes after the long comment):
                         companies_squared_dataframe.at[points_giving_company_symbol, symbol]
                         shows the structure of the final dataframe.
                         the ROWS are the points GIVEN to the companies 
@@ -295,26 +322,34 @@ def build_companies_squared_dataframe(symbols_list, splitted_list_of_symbols,
                         a number in the range 0-1 (in the respective slot
                         in the dataframe).
                         """
-                        companies_squared_dataframe.at[points_giving_company_symbol, symbol] += \
+                        companies_squared_dataframe.at[points_giving_company_symbol, symbol] = \
                             points_giving_company_dataframe.at[0, symbol]
                     except KeyError:
                         pass
         # this break is here so we can test things on 1 iteration instead of a ton of them.
-        break
+        # break
 
     return companies_squared_dataframe
 
 
+
+#def load_last_points_file():
+
+
+
 def create_points_dataframe(market_name, delay_days,
                             volume_percent_filter=0, ascend_or_descend='ascend',
-                            column_name='Percent-Change', sign_or_value='value'):
+                            column_name='Percent-Change', sign_or_value='value', number_of_iterations=1):
 
     daily_files_paths_list = path_finding_functions.get_all_daily_files_paths_in_specific_market(market_name)
     advanced_utils.check_for_daily_gaps(daily_files_paths_list)
     sample_daily_dataframe = stocks_analysis.all_companies_data_frame(daily_files_paths_list[0])
+    sample_daily_dataframe = advanced_utils.remove_companies_black_list_from_dataframe(sample_daily_dataframe)
 
     initial_volume_filtered_dataframe = \
         advanced_utils.volume_filtered_market_dataframe(sample_daily_dataframe, volume_percent_filter)
+    initial_volume_filtered_dataframe = advanced_utils.\
+        remove_companies_black_list_from_dataframe(initial_volume_filtered_dataframe)
 
     symbols_list = initial_volume_filtered_dataframe['Symbol'].tolist()
 
@@ -324,7 +359,8 @@ def create_points_dataframe(market_name, delay_days,
     companies_squared_dataframe = \
         build_companies_squared_dataframe(symbols_list, splitted_list_of_symbols,
                                           column_name, market_name, delay_days,
-                                          volume_percent_filter, ascend_or_descend, sign_or_value)
+                                          volume_percent_filter, ascend_or_descend,
+                                          sign_or_value, number_of_iterations)
 
     file_path = path_finding_functions.\
         set_points_file_path(market_name + "_" + ascend_or_descend + "_"

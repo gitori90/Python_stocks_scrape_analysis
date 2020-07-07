@@ -84,18 +84,18 @@ class StocksSectionAdvanced:
         return method_result
 
     def create_ascending_points_dataframe(self, market_name, delay_days,
-                                          volume_percent_filter=0, sign_or_value='value',
+                                          volume_percent_filter=0, number_of_iterations=1, sign_or_value='value',
                                           column_name='Percent-Change'):
         advanced_API.GlobalConnections().\
             create_ascending_points_dataframe(market_name, delay_days, volume_percent_filter,
-                                              sign_or_value, column_name)
+                                              sign_or_value, column_name, number_of_iterations)
 
     def create_descending_points_dataframe(self, market_name, delay_days,
-                                           volume_percent_filter=0, sign_or_value='value',
+                                           volume_percent_filter=0, number_of_iterations=1, sign_or_value='value',
                                            column_name='Percent-Change'):
         advanced_API.GlobalConnections().\
             create_descending_points_dataframe(market_name, delay_days, volume_percent_filter,
-                                               sign_or_value, column_name)
+                                               sign_or_value, column_name, number_of_iterations)
 
 
 class CurrenciesSection:

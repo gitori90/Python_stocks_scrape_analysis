@@ -39,12 +39,12 @@ class GlobalConnections:
 
     def create_ascending_points_dataframe(self, market_name, delay_days,
                                           volume_percent_filter=0, sign_or_value='value',
-                                          column_name='Percent-Change'):
+                                          column_name='Percent-Change', number_of_iterations=1):
         advanced_analysis.create_points_dataframe(market_name, delay_days,
-                            volume_percent_filter, 'ascend', column_name, sign_or_value)
+                            volume_percent_filter, 'ascend', column_name, sign_or_value, number_of_iterations)
 
     def create_descending_points_dataframe(self, market_name, delay_days,
                                            volume_percent_filter=0, sign_or_value='value',
-                                           column_name='Percent-Change'):
+                                           column_name='Percent-Change', number_of_iterations=1):
         advanced_analysis.create_points_dataframe(market_name, delay_days,
-                            volume_percent_filter, 'descend', column_name, sign_or_value)
+                            volume_percent_filter, 'descend', column_name, sign_or_value, number_of_iterations)

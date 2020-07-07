@@ -9,6 +9,7 @@ from backend import stocks_backend_API as backend_API
 import backend.scripts.analysis.advanced_analysis as advanced_analysis
 import backend.scripts.data_scrape.path_finding_functions as path_finding_functions
 import backend.scripts.market_operations.daily_market_operations as daily_operations
+import backend.scripts.analysis.advanced_utils as advanced_utils
 
 import threading
 import concurrent.futures
@@ -72,9 +73,24 @@ print(testdict2)"""
 
 #print(inspect.getframeinfo(inspect.currentframe()).lineno)
 
+market_name = 'nasdaq'
+delay_days = 1
+volume_percent_filter = 20
+number_of_iterations = 2
+sign_or_value = 'sign'
+backend_API.StocksSectionAdvanced().\
+    create_descending_points_dataframe(market_name, delay_days,
+                                      volume_percent_filter, number_of_iterations,
+                                      sign_or_value)
 
-"""backend_API.StocksSectionAdvanced().create_ascending_points_dataframe('nasdaq', 1, 20, 'sign')
-backend_API.StocksSectionAdvanced().create_descending_points_dataframe('nasdaq', 1, 20, 'sign')
+sign_or_value = 'value'
+backend_API.StocksSectionAdvanced().\
+    create_descending_points_dataframe(market_name, delay_days,
+                                      volume_percent_filter, number_of_iterations,
+                                      sign_or_value)
+
+
+"""backend_API.StocksSectionAdvanced().create_descending_points_dataframe('nasdaq', 1, 20, 'sign')
 
 backend_API.StocksSectionAdvanced().create_ascending_points_dataframe('nasdaq', 1, 20, 'value')
 backend_API.StocksSectionAdvanced().create_descending_points_dataframe('nasdaq', 1, 20, 'value')"""
@@ -90,5 +106,5 @@ print(dataframe_of_top_by_column)"""
 
 #daily_operations.top_stocks_today('nasdaq', 1)
 
-backend_API.StocksSectionBasic().create_symbols_file('nasdaq')
+#backend_API.StocksSectionBasic().create_symbols_file('nasdaq')
 

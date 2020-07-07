@@ -4,25 +4,36 @@ import requests
 from bs4 import BeautifulSoup
 
 
+def get_exiled_companies_symbols_path(market_name):
+    file_path = r"backend\project_files\latest_exiled_symbols\\" + market_name + "_latest_exiled_symbols"
+    return file_path
+
+
+def get_splitted_list_of_symbols_position_path(market_name, ascend_or_descend, sign_or_value, delay_days):
+    file_path = r"backend\project_files\analysis_results\\" + market_name \
+                + "_" + ascend_or_descend + "_" + sign_or_value + "_" \
+                + "delay" + str(delay_days) + "_splitted_list_of_symbols_position.txt"
+    return file_path
+
+
 def set_operations_file_path():
     today = str(datetime.date.today())
-    file_path = r"backend\project_files\daily_predictions" + r"/predictions_" + today + ".xlsx"
+    file_path = r"backend\project_files\daily_predictions\predictions_" + today + ".xlsx"
     return file_path
 
 
 def set_points_file_path(title):
     today = str(datetime.date.today())
-    file_path = r"backend\project_files\analysis_results" \
-                + r"\companies_points_" + title + "_" + today + ".xlsx"
+    file_path = r"backend\project_files\analysis_results\companies_points_" + title + "_" + today + ".xlsx"
     return file_path
 
 
-def get_points_file_path(exchange_name, ascend_or_descend, sign_or_value,delay_days):
+def get_points_file_path(exchange_name, ascend_or_descend, sign_or_value, delay_days):
     path_string = r"backend\project_files\analysis_results\companies_points_"\
                   + exchange_name + "_" + ascend_or_descend + "_" + sign_or_value +\
                   "_" + "delay" + str(delay_days) + "*.xlsx"
-    requested_points_dataframe_file_path = \
-        glob.glob(path_string)[-1]
+    requested_points_dataframe_file_path = glob.glob(path_string)[-1]
+
     return requested_points_dataframe_file_path
 
 
@@ -34,7 +45,7 @@ def set_daily_data_file_path(title):
 
 def set_symbols_file_name(title):
     today = str(datetime.date.today())
-    file_path = r"backend\project_files\symbols_excel_files" + r"\companies_symbols_" + title + today + ".xlsx"
+    file_path = r"backend\project_files\symbols_excel_files\companies_symbols_" + title + today + ".xlsx"
     return file_path
 
 

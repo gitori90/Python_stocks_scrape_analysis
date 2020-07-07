@@ -197,3 +197,53 @@ def splitted_symbols_list(symbols_list, number_of_sublists):
 
     return splitted_list
 
+
+# filtered by COMPANIES_BLACK_LIST
+def get_filtered_selected_points_dataframe(exchange_name, ascend_or_descend, sign_or_value, delay_days):
+    points_dataframe_file_path = path_finding_functions. \
+        get_points_file_path(exchange_name, ascend_or_descend, sign_or_value, delay_days)
+    points_dataframe = pd.read_excel(points_dataframe_file_path)
+    points_dataframe = points_dataframe.set_index('Unnamed: 0')
+
+    filtered_points_dataframe = points_dataframe.drop(columns=COMPANIES_BLACK_LIST,
+                                                      index=COMPANIES_BLACK_LIST,
+                                                      errors='ignore')
+    return filtered_points_dataframe
+
+
+def get_and_increment_symbols_sublist_position(market_name, total_number_of_sublists,
+                                               numb_to_increment, ascend_or_descend,
+                                               sign_or_value, delay_days):
+    position_file_path = path_finding_functions.\
+        get_splitted_list_of_symbols_position_path(market_name, ascend_or_descend, sign_or_value, delay_days)
+    f = open(position_file_path, "r")
+    position = int(f.read(1)) % total_number_of_sublists
+    f.close()
+
+    new_position = position + numb_to_increment
+    new_position = new_position % total_number_of_sublists
+
+    f = open(position_file_path, "w")
+    f.write(str(new_position))
+    f.close()
+
+    return position
+
+
+def exiled_and_new_symbols(market_name, last_daily_dataframe, all_symbols_points_dataframe_list):
+    exiled_symbols_path = path_finding_functions.get_exiled_companies_symbols_path(market_name)
+
+    new_symbols = []
+    exiled_symbols = []
+
+    today_symbols = last_daily_dataframe['Symbol'].tolist()
+    for symbol in today_symbols:
+        if symbol not in all_symbols_points_dataframe_list:
+            exiled_symbols.append(symbol)
+
+    for symbol in all_symbols_points_dataframe_list:
+        if symbol not in today_symbols:
+            new_symbols.append(symbol)
+
+    print("New Symbols:")
+    print(new_symbols)

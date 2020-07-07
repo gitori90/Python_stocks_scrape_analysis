@@ -6,23 +6,6 @@ import backend.scripts.analysis.advanced_utils as advanced_utils
 import statistics
 
 
-
-
-
-# filtered by COMPANIES_BLACK_LIST
-def get_filtered_selected_points_dataframe(exchange_name, ascend_or_descend, sign_or_value, delay_days):
-    points_dataframe_file_path = path_finding_functions. \
-        get_points_file_path(exchange_name, ascend_or_descend, sign_or_value, delay_days)
-    points_dataframe = pd.read_excel(points_dataframe_file_path)
-    points_dataframe = points_dataframe.set_index('Unnamed: 0')
-
-    filtered_points_dataframe = points_dataframe.drop(columns=advanced_utils.COMPANIES_BLACK_LIST,
-                                                      index=advanced_utils.COMPANIES_BLACK_LIST,
-                                                      errors='ignore')
-    return filtered_points_dataframe
-
-
-
 def company_points_giving_by_filter(requested_points_dataframe, bl_filtered_points_dataframe,
                                     all_symbols_list, company_symbol, percent_filter=0.8, today_company_value=0):
     # pd.at[] doesnt work here, so i had to take the dataframe apart and recreate it at the end.
@@ -68,7 +51,7 @@ def assign_today_points(exchange_dataframe_today, exchange_name, delay_days,
                         col_name, ascend_or_descend, sign_or_value, percent_filter=0.8,
                         values_filtered_symbols_list=['nan']):
     bl_filtered_points_dataframe = \
-        get_filtered_selected_points_dataframe(exchange_name, ascend_or_descend, sign_or_value, delay_days)
+        advanced_utils.get_filtered_selected_points_dataframe(exchange_name, ascend_or_descend, sign_or_value, delay_days)
 
     if sign_or_value == 'value':
         all_symbols_list = values_filtered_symbols_list
