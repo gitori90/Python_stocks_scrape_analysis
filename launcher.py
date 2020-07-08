@@ -69,7 +69,7 @@ print(testdict2)"""
 
 
 # UPDATE POINTS DATAFRAME!!:
-market_name = 'nasdaq'
+"""market_name = 'nasdaq'
 delay_days = 1
 volume_percent_filter = 20
 number_of_iterations = 2
@@ -78,7 +78,7 @@ backend_API.StocksSectionAdvanced().\
     create_ascending_points_dataframe(market_name, delay_days,
                                       volume_percent_filter, number_of_iterations,
                                       sign_or_value)
-"""backend_API.StocksSectionAdvanced().\
+backend_API.StocksSectionAdvanced().\
     create_descending_points_dataframe(market_name, delay_days,
                                       volume_percent_filter, number_of_iterations,
                                       sign_or_value)
@@ -102,8 +102,10 @@ backend_API.StocksSectionAdvanced().\
 
 print(dataframe_of_top_by_column)"""
 
-
-#daily_operations.top_stocks_today('nasdaq', 1, 15)
+market_name = 'nasdaq'
+delay_days = 1
+top_companies_number = 15
+daily_operations.top_stocks_today(market_name, delay_days, top_companies_number)
 
 #backend_API.StocksSectionBasic().create_symbols_file('nasdaq')
 

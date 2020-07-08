@@ -255,12 +255,6 @@ def get_filtered_selected_points_dataframe(exchange_name, ascend_or_descend, sig
 
     exiled_symbols = [x for x in all_symbols_in_points_dataframe if x not in all_symbols_today]
 
-    # CHECK THE CREATING ZEROES POINTS DATAFRAME VS THE LOADING OF EXISTING ONE! THE LOADING EXISTING ONE MIGHT NOT
-    # INCLUDE NEW COMPANIES!!
-
-    # write_exiled_and_print_new_symbols(exchange_name, exchange_dataframe_today, list(points_dataframe.columns))
-
-
     filtered_points_dataframe = points_dataframe.drop(columns=exiled_symbols,
                                                       index=exiled_symbols,
                                                       errors='ignore')
@@ -279,7 +273,8 @@ def get_and_increment_symbols_sublist_position(market_name, total_number_of_subl
         position = int(f.read()) % total_number_of_sublists
         f.close()
     except:
-        print("The position_file_path does not exist. Initializing one.")
+        f = open(position_file_path, "x")
+        f.close()
 
     new_position = position + numb_to_increment
     new_position = new_position % total_number_of_sublists
