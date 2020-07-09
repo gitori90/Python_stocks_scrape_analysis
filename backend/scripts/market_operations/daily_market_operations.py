@@ -21,9 +21,8 @@ def company_points_giving_by_filter(requested_points_dataframe, exiled_filtered_
 
         points = company_points_giving_serie.at[company_symbol, symbol_runner]
         if today_company_value > 0:  # this occurs only when i plug in a different value for it
-                                     # in the if statement of the value/sign.
+                                     # in the if statement of the value/sign in the function that calls this1.
             points *= today_company_value
-
 
         if points >= percent_filter:
             index = requested_points_dataframe_symbols.index(symbol_runner)

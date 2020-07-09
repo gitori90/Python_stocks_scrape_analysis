@@ -212,7 +212,7 @@ def build_companies_counter_dict_for_specific_company(market_name, company_symbo
     number_of_counted_days = number_of_files - delay_days
 
     initialized_daily_dict_counter = advanced_utils.create_companies_zero_dict(market_name, volume_percent_filter)
-    # print("TRNX" in initialized_daily_dict_counter.keys())
+
     updated_daily_dict_counter, ascend_count, descent_count = \
         build_count_dict_from_daily_files(number_of_counted_days, daily_files_paths_list,
                                           company_symbol, col_name, delay_days,
@@ -301,28 +301,6 @@ def build_companies_squared_dataframe(symbols_list, splitted_list_of_symbols,
                 points_giving_company_dataframe = list(points_dicts.values())[0]
                 for symbol in symbols_list:
                     try:
-                        """
-                        that line (which executes after the long comment):
-                        companies_squared_dataframe.at[points_giving_company_symbol, symbol]
-                        shows the structure of the final dataframe.
-                        the ROWS are the points GIVEN to the companies 
-                        in the COLUMNS.
-                        
-                        that company which gives the points on each iteration
-                        to all the other companies, gives the normalized amount
-                        of the -
-                        
-                        <times this company's price ascended / descended
-                        and so did the other company at the delayed day>
-                        
-                        divided by the (thus normalized) - 
-                        
-                        <number of days that company's price ascended / descended>
-                        
-                        thus, each company will give to every other company,
-                        a number in the range 0-1 (in the respective slot
-                        in the dataframe).
-                        """
                         companies_squared_dataframe.at[points_giving_company_symbol, symbol] = \
                             points_giving_company_dataframe.at[0, symbol]
                     except KeyError:

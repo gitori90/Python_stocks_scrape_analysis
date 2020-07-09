@@ -14,9 +14,7 @@ import backend.scripts.analysis.advanced_utils as advanced_utils
 import threading
 import concurrent.futures
 import inspect
-
-
-
+import datetime
 
 
 """def printer(something):
@@ -69,15 +67,20 @@ print(testdict2)"""
 
 
 # UPDATE POINTS DATAFRAME!!:
-"""market_name = 'nasdaq'
+x = datetime.datetime.now()
+
+market_name = 'nasdaq'
 delay_days = 1
 volume_percent_filter = 20
-number_of_iterations = 2
+number_of_iterations = 1
 sign_or_value = 'sign'
+
+
 backend_API.StocksSectionAdvanced().\
     create_ascending_points_dataframe(market_name, delay_days,
                                       volume_percent_filter, number_of_iterations,
                                       sign_or_value)
+
 backend_API.StocksSectionAdvanced().\
     create_descending_points_dataframe(market_name, delay_days,
                                       volume_percent_filter, number_of_iterations,
@@ -88,10 +91,16 @@ backend_API.StocksSectionAdvanced().\
     create_ascending_points_dataframe(market_name, delay_days,
                                       volume_percent_filter, number_of_iterations,
                                       sign_or_value)
+
 backend_API.StocksSectionAdvanced().\
     create_descending_points_dataframe(market_name, delay_days,
                                       volume_percent_filter, number_of_iterations,
-                                      sign_or_value)"""
+                                      sign_or_value)
+
+y = datetime.datetime.now()
+z = y - x
+print("THE TIME IT TOOK:")
+print(z)
 
 
 # EXECUTE TO SCRAPE ALL DAILY DATA:
@@ -102,10 +111,10 @@ backend_API.StocksSectionAdvanced().\
 
 print(dataframe_of_top_by_column)"""
 
-market_name = 'nasdaq'
+"""market_name = 'nasdaq'
 delay_days = 1
 top_companies_number = 15
-daily_operations.top_stocks_today(market_name, delay_days, top_companies_number)
+daily_operations.top_stocks_today(market_name, delay_days, top_companies_number)"""
 
 #backend_API.StocksSectionBasic().create_symbols_file('nasdaq')
 

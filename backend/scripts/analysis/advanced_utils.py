@@ -9,58 +9,6 @@ import re
 import inspect
 
 
-"""COMPANIES_BLACK_LIST = ['TRNX', 'VTIQW', 'VTIQ', 'VTIQU', 'TUES', 'NEBU', 'CSFL']
-
-
-def get_companies_black_list(market_name):
-
-    exiled_symbols_path = path_finding_functions.get_exiled_companies_symbols_path(market_name)
-    f = open(exiled_symbols_path, "r")
-    exiled_symbols_string = f.read()
-    exiled_symbols_list = exiled_symbols_string.split(",")
-    f.close()
-
-    return exiled_symbols_list
-
-
-def write_exiled_and_print_new_symbols(market_name, last_daily_dataframe, all_symbols_points_dataframe_list):
-
-    exiled_symbols_path = path_finding_functions.get_exiled_companies_symbols_path(market_name)
-
-    global COMPANIES_BLACK_LIST
-    new_symbols = []
-    exiled_symbols = []
-
-    today_symbols = last_daily_dataframe['Symbol'].tolist()
-
-    for symbol in all_symbols_points_dataframe_list:
-        if symbol not in today_symbols:
-            exiled_symbols.append(symbol)
-
-    COMPANIES_BLACK_LIST = exiled_symbols
-
-    for symbol in today_symbols:
-        if symbol not in all_symbols_points_dataframe_list:
-            new_symbols.append(symbol)
-
-    if len(exiled_symbols) > 0:
-        f = open(exiled_symbols_path, "w")
-        for symbol in exiled_symbols:
-            f.write(symbol + ",")
-        f.close()
-
-    if len(new_symbols) > 0:
-        print("New Symbols:")
-        print(new_symbols)
-
-"""
-"""def remove_companies_black_list_from_dataframe(dataframe, black_list=COMPANIES_BLACK_LIST):
-    for company_symbol in black_list:
-        dataframe = dataframe[dataframe['Symbol'] != company_symbol]
-
-    return dataframe"""
-
-
 def create_daily_dict(symbols_list, column_values_list, sign_or_value):
     today_signs_dict = {}
     for i in range(len(symbols_list)):
@@ -133,12 +81,10 @@ def get_company_value_sign_from_daily_dataframe(today_dataframe, company_symbol,
     try:
         today_chosen_company = today_dataframe[today_dataframe['Symbol'] == company_symbol]
     except:
-        # print(company_symbol, " advanced utils 71")
         return 0
     try:
         today_chosen_company_value = float(today_chosen_company[col_name])
     except:
-        # print("Error in today_chosen_company_value. Company: ", company_symbol)
         return 0
     try:
         value_sign = today_chosen_company_value / abs(today_chosen_company_value)
@@ -182,7 +128,7 @@ def volume_filtered_market_dataframe(market_dataframe, volume_percent_filter=0):
 
 
 def create_companies_zero_dict(market_name, volume_percent_filter=0):
-    daily_dataframe = stocks_analysis.get_market_today_dataframe(market_name)
+    daily_dataframe = stocks_analysis.get_market_last_dataframe(market_name)
     filtered_daily_dataframe = volume_filtered_market_dataframe(daily_dataframe, volume_percent_filter)
     symbols_list = filtered_daily_dataframe['Symbol'].tolist()
     dict_of_zeros = {symbols_list[i]: 0 for i in range(len(symbols_list))}
@@ -212,9 +158,9 @@ def normalize_daily_dict_counter(tendency, updated_daily_dict_counter, ascend_co
         try:
             updated_daily_dict_counter[key] /= tendency_count
         except ZeroDivisionError:
-            # print(key, " advanced utils 145")
             updated_daily_dict_counter[key] = 0
             continue
+
         updated_daily_dict_counter[key] = round(updated_daily_dict_counter[key], 3)
 
     return updated_daily_dict_counter
@@ -245,6 +191,9 @@ def get_filtered_selected_points_dataframe(exchange_name, ascend_or_descend, sig
 
     points_dataframe_file_path = path_finding_functions. \
         get_points_file_path(exchange_name, ascend_or_descend, sign_or_value, delay_days)
+
+    print("Now loading points dataframe: ", points_dataframe_file_path)
+
     points_dataframe = pd.read_excel(points_dataframe_file_path)
     points_dataframe = points_dataframe.set_index('Unnamed: 0')
 

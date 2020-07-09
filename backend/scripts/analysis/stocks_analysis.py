@@ -2,6 +2,7 @@ import pandas as pd
 import backend.scripts.df_utils.data_frame_utilities as dataframe_utils
 import backend.scripts.analysis.stocks_analysis_utils as stocks_utils
 import backend.scripts.data_scrape.eoddata_scrape_API as scrape_API
+import backend.scripts.data_scrape.path_finding_functions as path_finding_functions
 import re
 
 
@@ -251,4 +252,10 @@ def get_market_today_dataframe(market_name):
     return chosen_daily_dataframe
 
 
+def get_market_last_dataframe(market_name):
+    last_daily_file_path = path_finding_functions.get_last_daily_data_file_path(market_name)
 
+    print("last daily dataframe: ", last_daily_file_path)
+
+    chosen_daily_dataframe = all_companies_data_frame(last_daily_file_path)
+    return chosen_daily_dataframe

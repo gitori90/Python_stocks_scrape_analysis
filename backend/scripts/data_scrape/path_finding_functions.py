@@ -4,11 +4,6 @@ import requests
 from bs4 import BeautifulSoup
 
 
-"""def get_exiled_companies_symbols_path(market_name):
-    file_path = r"backend\project_files\latest_exiled_symbols\\" + market_name + "_latest_exiled_symbols.txt"
-    return file_path"""
-
-
 def get_splitted_list_of_symbols_position_path(market_name, ascend_or_descend, sign_or_value, delay_days):
     file_path = r"backend\project_files\analysis_results\\" + market_name \
                 + "_" + ascend_or_descend + "_" + sign_or_value + "_" \
@@ -41,6 +36,12 @@ def set_daily_data_file_path(title):
     today = str(datetime.date.today())
     file_path = r"backend\project_files" + r"\daily_data_excels_" + title + r"\{}".format(title) + today + ".xlsx"
     return file_path
+
+
+def get_last_daily_data_file_path(market_name):
+    partial_file_path = r"backend\project_files" + r"\daily_data_excels_" + market_name + "\*.xlsx"
+    last_daily_data_file_path = glob.glob(partial_file_path)[-1]
+    return last_daily_data_file_path
 
 
 def set_symbols_file_name(title):
