@@ -307,8 +307,12 @@ def build_companies_squared_dataframe(symbols_list, splitted_list_of_symbols,
                         points_dataframe_symbols_list = list(companies_squared_dataframe.index)
                         if points_giving_company_symbol not in points_dataframe_symbols_list:
                             missing_symbol = points_giving_company_symbol
+                            print("points_giving_company_symbol not in points_dataframe_symbols_list: ", missing_symbol)
+                            print("Adding it to the dataframe. Check it specifically.")
                         elif symbol not in points_dataframe_symbols_list:
                             missing_symbol = symbol
+                            print("symbol not in points_dataframe_symbols_list: ", missing_symbol)
+                            print("Adding it to the dataframe. Check it specifically.")
                         else:
                             raise
                         companies_squared_dataframe[missing_symbol] = 0  # this might cause an error

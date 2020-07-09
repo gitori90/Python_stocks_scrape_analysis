@@ -14,8 +14,13 @@ def company_points_giving_by_filter(requested_points_dataframe, exiled_filtered_
     requested_points_dataframe_count = requested_points_dataframe.iloc[1].tolist()
 
     giving_companies_pass_filter = []
+    try:
+        company_points_giving_serie = exiled_filtered_points_dataframe.loc[[company_symbol]]
+    except KeyError:
+        print("Captured KeyError, company not in giving points companies list: ", company_symbol)
+        print("today_company_value: ", today_company_value)
+        return requested_points_dataframe, False
 
-    company_points_giving_serie = exiled_filtered_points_dataframe.loc[[company_symbol]]
     for symbol_runner in all_symbols_list:
         # ALL THE DIFFERENCE BETWEEN THE CHANCE POINTS AND THE VALUE POINTS IS HERE!
 
@@ -44,6 +49,7 @@ def company_points_giving_by_filter(requested_points_dataframe, exiled_filtered_
     updated_requested_points_dataframe = pd.DataFrame(data=updated_requested_points_dict)
 
     return updated_requested_points_dataframe, giving_companies_pass_filter
+
 
 
 def assign_today_points(exchange_dataframe_today, exchange_name, delay_days,
@@ -79,6 +85,13 @@ def assign_today_points(exchange_dataframe_today, exchange_name, delay_days,
                         company_points_giving_by_filter(requested_points_dataframe,
                                                         exiled_filtered_points_dataframe,
                                                         all_symbols_list, symbol, percent_filter)
+                    if giving_companies_pass_filter is False:
+                        print("got false1")
+                        continue
+                        # for some reason this occurs for companies
+                        # that were removed by the volume filtering.
+                        # they might appear in the columns but not in the rows.
+
                     giving_companies_pass_filter_total_list.extend(giving_companies_pass_filter)
 
                 elif sign_or_value == 'value':
@@ -86,10 +99,19 @@ def assign_today_points(exchange_dataframe_today, exchange_name, delay_days,
                         company_points_giving_by_filter(requested_points_dataframe,
                                                         exiled_filtered_points_dataframe,
                                                         all_symbols_list, symbol, 0, today_company_value)
+                    if giving_companies_pass_filter is False:
+                        print("got false2")
+                        continue
+                        # for some reason this occurs for companies
+                        # that were removed by the volume filtering.
+                        # they might appear in the columns but not in the rows.
+
 
                 else:
                     print("Error input sign_or_value: ", sign_or_value)
                     exit(1)
+
+
 
             else:
                 continue
@@ -169,6 +191,7 @@ def write_top_dataframes_today_to_excel(top_chance_power_dataframe_ascend, top_c
 
 
 def top_stocks_today(exchange_name, delay_days, top_companies_number=10, sign_percent_filter=0.8):
+    print("Initializing analysis of top_stocks_today.")
     exchange_dataframe_today = stocks_API.AllDataAnalysisToday(exchange_name).all_daily_dataframe
 
     """exchange_dataframe_today_filtered = \
