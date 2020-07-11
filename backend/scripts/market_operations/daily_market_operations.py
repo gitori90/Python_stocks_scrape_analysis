@@ -111,8 +111,6 @@ def assign_today_points(exchange_dataframe_today, exchange_name, delay_days,
                     print("Error input sign_or_value: ", sign_or_value)
                     exit(1)
 
-
-
             else:
                 continue
 
@@ -182,8 +180,8 @@ def top_chance_power_dataframe_today(exchange_dataframe_today_filtered, exchange
     return top_chance_power_dataframe
 
 
-def write_top_dataframes_today_to_excel(top_chance_power_dataframe_ascend, top_chance_power_dataframe_descend):
-    file_path = path_finding_functions.set_operations_file_path()
+def write_top_dataframes_today_to_excel(exchange_name, top_chance_power_dataframe_ascend, top_chance_power_dataframe_descend):
+    file_path = path_finding_functions.set_operations_file_path(exchange_name)
     writer = pd.ExcelWriter(file_path, engine='xlsxwriter')
     top_chance_power_dataframe_ascend.to_excel(writer, sheet_name='Growth')
     top_chance_power_dataframe_descend.to_excel(writer, sheet_name='Shrink')
@@ -206,5 +204,5 @@ def top_stocks_today(exchange_name, delay_days, top_companies_number=10, sign_pe
         top_chance_power_dataframe_today(exchange_dataframe_today, exchange_name,
                                          delay_days, 'descend', sign_percent_filter, top_companies_number)
 
-    write_top_dataframes_today_to_excel(top_chance_power_dataframe_ascend, top_chance_power_dataframe_descend)
+    write_top_dataframes_today_to_excel(exchange_name, top_chance_power_dataframe_ascend, top_chance_power_dataframe_descend)
 

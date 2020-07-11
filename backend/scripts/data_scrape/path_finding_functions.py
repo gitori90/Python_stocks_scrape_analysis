@@ -11,10 +11,22 @@ def get_splitted_list_of_symbols_position_path(market_name, ascend_or_descend, s
     return file_path
 
 
-def set_operations_file_path():
+def set_operations_file_path(market_name):
     today = str(datetime.date.today())
-    file_path = r"backend\project_files\daily_predictions\predictions_" + today + ".xlsx"
+    file_path = r"backend\project_files\daily_predictions\predictions_" + market_name + "_" + today + ".xlsx"
     return file_path
+
+
+def set_operations_results_file_path(market_name):
+    today = str(datetime.date.today())
+    file_path = r"backend\project_files\daily_predictions\results\predictions_results_" + market_name + "_" + today + ".xlsx"
+    return file_path
+
+
+def get_last_operations_file_path(market_name):
+    file_path_template = r"backend\project_files\daily_predictions\predictions_" + market_name + "*.xlsx"
+    last_daily_predictions_path = glob.glob(file_path_template)[-1]
+    return last_daily_predictions_path
 
 
 def set_points_file_path(title):
@@ -39,7 +51,7 @@ def set_daily_data_file_path(title):
 
 
 def get_last_daily_data_file_path(market_name):
-    partial_file_path = r"backend\project_files" + r"\daily_data_excels_" + market_name + "\*.xlsx"
+    partial_file_path = r"backend\project_files" + r"\daily_data_excels_" + market_name + r"\*.xlsx"
     last_daily_data_file_path = glob.glob(partial_file_path)[-1]
     return last_daily_data_file_path
 

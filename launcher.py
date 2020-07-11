@@ -10,6 +10,7 @@ import backend.scripts.analysis.advanced_analysis as advanced_analysis
 import backend.scripts.data_scrape.path_finding_functions as path_finding_functions
 import backend.scripts.market_operations.daily_market_operations as daily_operations
 import backend.scripts.analysis.advanced_utils as advanced_utils
+import backend.scripts.market_operations.predictions_analysis as predictions_analysis
 
 import threading
 import concurrent.futures
@@ -100,8 +101,8 @@ backend_API.StocksSectionAdvanced().\
 y = datetime.datetime.now()
 z = y - x
 print("THE TIME IT TOOK:")
-print(z)
-"""
+print(z)"""
+
 
 # EXECUTE TO SCRAPE ALL DAILY DATA:
 
@@ -111,10 +112,12 @@ print(z)
 
 print(dataframe_of_top_by_column)"""
 
-market_name = 'nasdaq'
+"""market_name = 'nasdaq'
 delay_days = 1
 top_companies_number = 25
-daily_operations.top_stocks_today(market_name, delay_days, top_companies_number)
+daily_operations.top_stocks_today(market_name, delay_days, top_companies_number)"""
 
 #backend_API.StocksSectionBasic().create_symbols_file('nasdaq')
 
+
+predictions_analysis.evaluate_predictions_datframe('nasdaq')
