@@ -68,7 +68,7 @@ print(testdict2)"""
 
 
 # UPDATE POINTS DATAFRAME!!:
-"""x = datetime.datetime.now()
+x = datetime.datetime.now()
 
 market_name = 'nasdaq'
 delay_days = 1
@@ -101,7 +101,7 @@ backend_API.StocksSectionAdvanced().\
 y = datetime.datetime.now()
 z = y - x
 print("THE TIME IT TOOK:")
-print(z)"""
+print(z)
 
 
 # EXECUTE TO SCRAPE ALL DAILY DATA:
@@ -120,4 +120,4 @@ daily_operations.top_stocks_today(market_name, delay_days, top_companies_number)
 #backend_API.StocksSectionBasic().create_symbols_file('nasdaq')
 
 
-predictions_analysis.evaluate_predictions_datframe('nasdaq')
+#predictions_analysis.evaluate_predictions_datframe('nasdaq')

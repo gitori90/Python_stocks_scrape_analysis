@@ -6,6 +6,7 @@ import backend.scripts.analysis.stocks_analysis as stocks_analysis
 
 def load_last_predictions(market_name):
     last_predictions_path = path_finding_functions.get_last_operations_file_path(market_name)
+    print("Last predictions file's path: ", last_predictions_path)
     sheet1_name = 'Growth'
     sheet2_name = 'Shrink'
     growth_dataframe = pd.read_excel(last_predictions_path, sheet_name=sheet1_name)
@@ -16,6 +17,7 @@ def load_last_predictions(market_name):
 
 def get_last_daily_dataframe(market_name):
     last_daily_path = path_finding_functions.get_last_daily_data_file_path(market_name)
+    print("Last daily file's path: ", last_daily_path)
     last_daily_dataframe = stocks_analysis.all_companies_data_frame(last_daily_path)
     return last_daily_dataframe
 
@@ -41,6 +43,7 @@ def write_results_dataframes_today_to_excel(exchange_name, growth_dataframe, shr
 
 
 def evaluate_predictions_datframe(market_name):
+    print("Evaluating predictions for {}...".format(market_name))
     last_daily_dataframe = get_last_daily_dataframe(market_name)
     growth_dataframe, shrink_dataframe = load_last_predictions(market_name)
 

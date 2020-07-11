@@ -174,7 +174,10 @@ def top_chance_power_dataframe_today(exchange_dataframe_today_filtered, exchange
                                                'Mean-Expected-' + growth_or_shrink + '(%)': growth_value_col,
                                                '# Voting-Companies': companies_voting_number_col})
 
-    top_chance_power_dataframe.sort_values(by=['Mean-' + growth_or_shrink + '-Probability(%)'],
+    """top_chance_power_dataframe.sort_values(by=['Mean-' + growth_or_shrink + '-Probability(%)'],
+                                           ascending=False, inplace=True)"""
+
+    top_chance_power_dataframe.sort_values(by=['# Voting-Companies'],
                                            ascending=False, inplace=True)
 
     return top_chance_power_dataframe
@@ -204,5 +207,6 @@ def top_stocks_today(exchange_name, delay_days, top_companies_number=10, sign_pe
         top_chance_power_dataframe_today(exchange_dataframe_today, exchange_name,
                                          delay_days, 'descend', sign_percent_filter, top_companies_number)
 
-    write_top_dataframes_today_to_excel(exchange_name, top_chance_power_dataframe_ascend, top_chance_power_dataframe_descend)
+    write_top_dataframes_today_to_excel(exchange_name, top_chance_power_dataframe_ascend,
+                                        top_chance_power_dataframe_descend)
 
