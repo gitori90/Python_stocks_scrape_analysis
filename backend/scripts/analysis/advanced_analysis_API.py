@@ -33,9 +33,6 @@ class GlobalConnections:
             analyse_method_on_all_dataframes_partial_name(partial_name, method_name, column_name)
         return method_result
 
-    """def create_companies_dict_of_zeros(self, market_name):
-        requested_dict = advanced_analysis.create_companies_zero_dict(market_name)
-        return requested_dict"""
 
     def create_ascending_points_dataframe(self, market_name, delay_days,
                                           volume_percent_filter=0, sign_or_value='value',

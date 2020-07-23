@@ -1,10 +1,10 @@
-#!/usr/bin/env python3
-
 import backend.scripts.data_scrape.eoddata_scrape_API as scrape_API
 import backend.scripts.analysis.stocks_analysis_API as stocks_API
 import backend.scripts.analysis.currencies_analysis_API as currencies_API
 import backend.scripts.plot_functions.plots_API as plots_API
 import backend.scripts.analysis.advanced_analysis_API as advanced_API
+import backend.scripts.market_operations.daily_market_operations as daily_operations
+import backend.scripts.market_operations.predictions_analysis as predictions_analysis
 
 DEFAULT_EXCHANGE_NAME = 'nasdaq'
 
@@ -64,6 +64,12 @@ class StocksSectionAdvanced:
     def __init__(self):
         pass
 
+    def scrape_all_daily_markets_data(self):
+        markets_list = stocks_API.viable_exchange_names()
+        for market_name in markets_list:
+            # creating that object scrapes the daily data if it doesnt exist:
+            unused = stocks_API.AllDataAnalysisToday(market_name)
+
     def top_x_words_in_all_dataframes_dict(self, top_number):
         top_dict = advanced_API.GlobalConnections().top_x_words_in_dataframe_dict(top_number)
         return top_dict
@@ -108,3 +114,16 @@ class CurrenciesSection:
 
     def get_specific_exchange_rates_dataframe(self, exchange_rates_symbols):
         return currencies_API.AllDataAnalysisToday().get_specific_exchange_rates(exchange_rates_symbols)
+
+
+class DailyPredictions:
+    def __init__(self):
+        pass
+
+    def top_stocks_today(self, exchange_name, delay_days, top_companies_number=10, sign_percent_filter=0.8):
+        # writes the results into a xlsx file:
+        daily_operations.top_stocks_today(exchange_name, delay_days, top_companies_number, sign_percent_filter)
+
+    def evaluate_predictions_datframe(self, market_name):
+        # takes the file created by top_stocks_today and adds a column of today's results.
+        predictions_analysis.evaluate_predictions_datframe(market_name)

@@ -4,7 +4,6 @@ import backend.scripts.analysis.stocks_analysis_API as stocks_API
 import backend.scripts.data_scrape.path_finding_functions as path_finding_functions
 from collections import Counter
 from datetime import date
-import threading
 import re
 import inspect
 
@@ -120,8 +119,6 @@ def volume_filtered_market_dataframe(market_dataframe, volume_percent_filter=0):
 
     number_of_rows = len(volume_list)
     chosen_percent_to_rows_to_remove = int(number_of_rows * volume_percent_filter / 100)
-
-    #print("volume filter threshold: " + str(volume_list[chosen_percent_to_rows_to_remove]))
 
     volume_filtered_dataframe = volume_sorted_dataframe[:-chosen_percent_to_rows_to_remove]
     return volume_filtered_dataframe

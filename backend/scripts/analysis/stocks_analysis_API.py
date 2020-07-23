@@ -21,9 +21,11 @@ class AllDataAnalysisToday:
         try:
             if os.path.isfile(self.daily_data_file_path) is False:
                 scrape_API.EoddataExchange(exchange_name).create_daily_data()
+                print("Created daily data file of market: ", exchange_name)
         except IndexError:
             print("no " + exchange_name + " symbols data file found.\n initiating symbols data file creation.")
             scrape_API.EoddataExchange(exchange_name).create_symbols_file()
+            print("Symbols data file created. Initializing daily data scrape.")
             scrape_API.EoddataExchange(exchange_name).create_daily_data()
 
         self.all_daily_dataframe = stocks_analysis.all_companies_data_frame(self.daily_data_file_path)

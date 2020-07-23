@@ -5,7 +5,6 @@ import backend.scripts.data_scrape.path_finding_functions as path_finding_functi
 import backend.scripts.analysis.advanced_utils as advanced_utils
 from collections import Counter
 from datetime import date
-import threading
 import concurrent.futures
 import re
 
@@ -175,30 +174,6 @@ def build_count_dict_from_daily_files(number_of_counted_days, daily_files_paths_
                                                    company_value_sign, col_name,
                                                    updated_daily_dict_counter, ascend_or_descend, sign_or_value)
 
-        if company_symbol == 'CSCO' and ascend_or_descend == 'ascend':
-            print("####################################")
-            print(sign_or_value)
-            print("focus day :", daily_files_paths_list[i])
-            print("delayed day: ", daily_files_paths_list[i + delay_days])
-            print("updated points to TOPS: ", updated_daily_dict_counter['TOPS'])
-            print("percent-change for CSCO: ", today_dataframe[today_dataframe['Symbol'] == 'CSCO']['Percent-Change'].tolist()[0])
-            print("percent-change for TOPS: ", delayed_daily_dataframe[delayed_daily_dataframe['Symbol'] == 'TOPS']['Percent-Change'].tolist()[0])
-            print("current ascend_count for CSCO: {}".format(ascend_count))
-
-            print("####################################")
-
-        elif company_symbol == 'SQQQ' and ascend_or_descend == 'descend':
-            print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-            print(sign_or_value)
-            print("focus day :", daily_files_paths_list[i])
-            print("delayed day: ", daily_files_paths_list[i + delay_days])
-            print("updated points to GNUS: ", updated_daily_dict_counter['GNUS'])
-            print("percent-change for SQQQ: ", today_dataframe[today_dataframe['Symbol'] == 'SQQQ']['Percent-Change'].tolist()[0])
-            print("percent-change for GNUS: ", delayed_daily_dataframe[delayed_daily_dataframe['Symbol'] == 'GNUS']['Percent-Change'].tolist()[0])
-            print("current descend_count for SQQQ: {}".format(descend_count))
-
-            print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-
     return updated_daily_dict_counter, ascend_count, descend_count
 
 
@@ -264,13 +239,10 @@ def build_companies_squared_dataframe(symbols_list, splitted_list_of_symbols,
     try:
         companies_squared_dataframe = advanced_utils. \
             get_filtered_selected_points_dataframe(market_name, ascend_or_descend, sign_or_value, delay_days)
-        # AND WHAT IF SOME SYMBOLS GOT REMOVED TODAY AND SOME WERE ADDED?
     except:
         print("Failed loading existing points_dataframe. Initializing a new one.")
         companies_squared_dataframe = advanced_utils.initiate_square_dataframe_zeros(symbols_list)
 
-
-    # the updating position in splitted_list_of_symbols to be done here
     current_position = advanced_utils.\
         get_and_increment_symbols_sublist_position(market_name, NUMBER_OF_SUBLISTS,
                                                    number_of_iterations, ascend_or_descend,
@@ -347,11 +319,13 @@ def create_points_dataframe(market_name, delay_days,
                                           volume_percent_filter, ascend_or_descend,
                                           sign_or_value, number_of_iterations)
 
+    sort_by_companies = ['TOPS', 'CSCO', 'SRNE']  # just to make sure i see all companies that were-
+                                                  # included in the count, and not spreaded all over the sheet.
+    companies_squared_dataframe.sort_values(by=sort_by_companies, ascending=False, inplace=True)
+
     file_path = path_finding_functions.\
         set_points_file_path(market_name + "_" + ascend_or_descend + "_"
                              + sign_or_value + "_" + "delay" + str(delay_days))
     writer = pd.ExcelWriter(file_path, engine='xlsxwriter')
     companies_squared_dataframe.to_excel(writer)
     writer.save()
-
-
